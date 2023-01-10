@@ -36,40 +36,35 @@
   q->name[QUEUE_MAX_NAME_SIZE - 1] = '\0';
 }
 
-    // Get the user-assigned name for the queue.
+  // Get the user-assigned name for the queue.
 const char *queue_name(queue_t *q) {
   return q->name;
 }
 
-    // Returns the capacity of the queue.
+  // Returns the capacity of the queue.
 queue_size_t queue_size(queue_t *q) {
   return q->size;
 }
 
-    // Returns true if the queue is full.
-    bool
-    queue_full(queue_t *q) {}
+  // Returns true if the queue is full.
+bool queue_full(queue_t *q) {}
 
-    // Returns true if the queue is empty.
-    bool
-    queue_empty(queue_t *q) {}
+  // Returns true if the queue is empty.
+bool queue_empty(queue_t *q) {}
 
-    // If the queue is not full, pushes a new element into the queue and clears the
-    // underflowFlag. IF the queue is full, set the overflowFlag, print an error
-    // message and DO NOT change the queue.
-    void
-    queue_push(queue_t *q, queue_data_t value) {}
+  // If the queue is not full, pushes a new element into the queue and clears the
+  // underflowFlag. IF the queue is full, set the overflowFlag, print an error
+  // message and DO NOT change the queue.
+void queue_push(queue_t *q, queue_data_t value) {}
 
-    // If the queue is not empty, remove and return the oldest element in the queue.
-    // If the queue is empty, set the underflowFlag, print an error message, and
-    // DO NOT change the queue.
-    queue_data_t
-    queue_pop(queue_t *q) {}
+  // If the queue is not empty, remove and return the oldest element in the queue.
+  // If the queue is empty, set the underflowFlag, print an error message, and
+  // DO NOT change the queue.
+queue_data_t queue_pop(queue_t *q) {}
 
-    // If the queue is full, call queue_pop() and then call queue_push().
-    // If the queue is not full, just call queue_push().
-    void
-    queue_overwritePush(queue_t *q, queue_data_t value) {}
+  // If the queue is full, call queue_pop() and then call queue_push().
+  // If the queue is not full, just call queue_push().
+void queue_overwritePush(queue_t *q, queue_data_t value) {}
 
     // Provides random-access read capability to the queue.
     // Low-valued indexes access older queue elements while higher-value indexes
