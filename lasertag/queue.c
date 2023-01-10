@@ -59,9 +59,9 @@ bool queue_empty(queue_t *q) { return q->size == 0; }
 void queue_push(queue_t *q, queue_data_t value) {
   if (!queue_full(q)) {
     q->data[q->indexIn] = value;
-    q->size = q->size + 1;
-    q->elementCount = q->elementCount + 1;
-    q->indexIn = q->indexIn + 1;
+    q->size++;
+    q->elementCount++;
+    q->indexIn++;
     q->underflowFlag = false;
   } else {
     q->overflowFlag = true;
@@ -77,9 +77,9 @@ queue_data_t queue_pop(queue_t *q) {
   
   if(!queue_empty(q)) {
     valueRemoved = q->data[q->indexOut];
-    q->size = q->size - 1;
-    q->elementCount = q->elementCount - 1;
-    q->indexOut = q->indexOut + 1;
+    q->size--;
+    q->elementCount--;
+    q->indexOut++;
     return valueRemoved;
   } else {
     q->underflowFlag = false;
