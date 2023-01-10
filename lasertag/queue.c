@@ -95,7 +95,18 @@ void queue_overwritePush(queue_t *q, queue_data_t value) {}
 // Low-valued indexes access older queue elements while higher-value indexes
 // access newer elements (according to the order that they were added).
 // Print a meaningful error message if an error condition is detected.
-queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {}
+queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {
+  if (index > q->indexIn) {
+    printf("ERROR: Index given is not in the array\n");
+    return;
+  } else if (index < q->indexOut) {
+    printf("ERROR: Index given is not in the array\n");
+    return;
+  } else {
+    return q->data[index];
+  }
+  
+}
 
 // Returns a count of the elements currently contained in the queue.
 queue_size_t queue_elementCount(queue_t *q) { return q->elementCount; }
