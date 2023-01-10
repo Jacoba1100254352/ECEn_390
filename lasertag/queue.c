@@ -55,7 +55,9 @@ bool queue_empty(queue_t *q) { return q->size == 0; }
 // If the queue is not full, pushes a new element into the queue and clears the
 // underflowFlag. IF the queue is full, set the overflowFlag, print an error
 // message and DO NOT change the queue.
-void queue_push(queue_t *q, queue_data_t value) {}
+void queue_push(queue_t *q, queue_data_t value) {
+  printf("\n");
+}
 
 // If the queue is not empty, remove and return the oldest element in the queue.
 // If the queue is empty, set the underflowFlag, print an error message, and
