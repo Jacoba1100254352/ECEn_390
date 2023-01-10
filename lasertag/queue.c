@@ -6,6 +6,7 @@
 
 #define QUEUE_FULL_MESSAGE "Queue full, data NOT added.\n"
 #define QUEUE_EMPTY_MESSAGE "Queue empty, no data removed.\n"
+#define QUEUE_READ_ERRORS "ERROR: Index given is not in the array\n"
 
 // Allocates memory for the queue (the data* pointer) and initializes all
 // parts of the data structure. Prints out an error message if malloc()
@@ -102,10 +103,10 @@ void queue_overwritePush(queue_t *q, queue_data_t value) {
 // Print a meaningful error message if an error condition is detected.
 queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {
   if (index > q->indexIn) {
-    printf("ERROR: Index given is not in the array\n");
+    printf(QUEUE_READ_ERRORS);
     return;
   } else if (index < q->indexOut) {
-    printf("ERROR: Index given is not in the array\n");
+    printf(QUEUE_READ_ERRORS);
     return;
   } else {
     return q->data[index];
