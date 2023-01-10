@@ -52,17 +52,39 @@ bool queue_full(queue_t *q) { return q->size == 200; }
 // Returns true if the queue is empty.
 bool queue_empty(queue_t *q) { return q->size == 0; }
 
-// If the queue is not full, pushes a new element into the queue and clears the
-// underflowFlag. IF the queue is full, set the overflowFlag, print an error
-// message and DO NOT change the queue.
+  // If the queue is not full, pushes a new element into the queue and clears the
+  // underflowFlag. IF the queue is full, set the overflowFlag, print an error
+  // message and DO NOT change the queue.
 void queue_push(queue_t *q, queue_data_t value) {
-  printf("\n");
+  if (!queue_full(q)) {
+    q->data[q->indexIn] = value;
+    q->size = q->size + 1;
+    q->elementCount = q->elementCount + 1;
+    q->indexIn = q->indexIn + 1;
+    q->underflowFlag = false;
+  } else {
+    q->overflowFlag = true;
+    printf(QUEUE_FULL_MESSAGE);
+  }
 }
 
-// If the queue is not empty, remove and return the oldest element in the queue.
-// If the queue is empty, set the underflowFlag, print an error message, and
-// DO NOT change the queue.
-queue_data_t queue_pop(queue_t *q) {}
+  // If the queue is not empty, remove and return the oldest element in the queue.
+  // If the queue is empty, set the underflowFlag, print an error message, and
+  // DO NOT change the queue.
+queue_data_t queue_pop(queue_t *q) {
+  queue_data_t valueRemoved;
+  
+  if(!queue_empty(q)) {
+    valueRemoved = q->data[q->indexOut];
+    q->size = q->size - 1;
+    q->elementCount = q->elementCount - 1;
+    q->indexOut = q->indexOut + 1;
+    return valueRemoved;
+  } else {
+    q->underflowFlag = false;
+    printf(QUEUE_EMPTY_MESSAGE);
+  }
+}
 
 // If the queue is full, call queue_pop() and then call queue_push().
 // If the queue is not full, just call queue_push().
