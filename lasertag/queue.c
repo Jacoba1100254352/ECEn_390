@@ -5,6 +5,7 @@
 #include "queue.h"
 
 #define QUEUE_FULL_MESSAGE "Queue full, data NOT added.\n"
+#define QUEUE_EMPTY_MESSAGE "Queue empty, no data removed.\n"
 
 // Allocates memory for the queue (the data* pointer) and initializes all
 // parts of the data structure. Prints out an error message if malloc()
