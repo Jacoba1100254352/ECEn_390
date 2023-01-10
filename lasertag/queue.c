@@ -4,6 +4,7 @@
 
 #include "queue.h"
 
+<<<<<<< HEAD
 // Allocates memory for the queue (the data* pointer) and initializes all
 // parts of the data structure. Prints out an error message if malloc()
 // fails and calls assert(false) to print-out line-number information and
@@ -11,6 +12,9 @@
 // known values (e.g. zeros), call queue_overwritePush() up to queue_size()
 // times.
 void queue_init(queue_t *q, queue_size_t size, const char *name) {
+=======
+#define QUEUE_FULL_MESSAGE "Queue full, data NOT added.\n"
+>>>>>>> 979e0d826a7124b686ce9c1e5d282a642fe38168
     
   // Allocates memory for the queue (the data* pointer) and initializes all
   // parts of the data structure. Prints out an error message if malloc()
@@ -99,7 +103,17 @@ bool queue_empty(queue_t *q) {}
   // If the queue is not full, pushes a new element into the queue and clears the
   // underflowFlag. IF the queue is full, set the overflowFlag, print an error
   // message and DO NOT change the queue.
-void queue_push(queue_t *q, queue_data_t value) {}
+void queue_push(queue_t *q, queue_data_t value) {
+  if (!queue_full(q)) {
+    q->data[q->indexIn] = value;
+    q->size = q->size + 1;
+    q->indexIn = q->indexIn + 1;
+    q->underflowFlag = false;
+  } else {
+    q->overflowFlag = true;
+    printf(QUEUE_FULL_MESSAGE);
+  }
+}
 
   // If the queue is not empty, remove and return the oldest element in the queue.
   // If the queue is empty, set the underflowFlag, print an error message, and
