@@ -4,14 +4,13 @@
 
 #include "queue.h"
     
-    // Allocates memory for the queue (the data* pointer) and initializes all
-    // parts of the data structure. Prints out an error message if malloc()
-    // fails and calls assert(false) to print-out line-number information and
-    // die. The queue is empty after initialization. To fill the queue with
-    // known values (e.g. zeros), call queue_overwritePush() up to queue_size()
-    // times.
-    void
-    queue_init(queue_t *q, queue_size_t size, const char *name) {
+  // Allocates memory for the queue (the data* pointer) and initializes all
+  // parts of the data structure. Prints out an error message if malloc()
+  // fails and calls assert(false) to print-out line-number information and
+  // die. The queue is empty after initialization. To fill the queue with
+  // known values (e.g. zeros), call queue_overwritePush() up to queue_size()
+  // times.
+void queue_init(queue_t *q, queue_size_t size, const char *name) {
   // Always points to the next open slot.
   q->indexIn = 0;
   // Always points to the next element to be removed
@@ -66,35 +65,30 @@ queue_data_t queue_pop(queue_t *q) {}
   // If the queue is not full, just call queue_push().
 void queue_overwritePush(queue_t *q, queue_data_t value) {}
 
-    // Provides random-access read capability to the queue.
-    // Low-valued indexes access older queue elements while higher-value indexes
-    // access newer elements (according to the order that they were added).
-    // Print a meaningful error message if an error condition is detected.
-    queue_data_t
-    queue_readElementAt(queue_t *q, queue_index_t index) {}
+  // Provides random-access read capability to the queue.
+  // Low-valued indexes access older queue elements while higher-value indexes
+  // access newer elements (according to the order that they were added).
+  // Print a meaningful error message if an error condition is detected.
+queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {}
 
-    // Returns a count of the elements currently contained in the queue.
-    queue_size_t
-    queue_elementCount(queue_t *q) {
+  // Returns a count of the elements currently contained in the queue.
+queue_size_t queue_elementCount(queue_t *q) {
   return q->elementCount;
 }
 
-    // Returns true if an underflow has occurred (queue_pop() called on an empty
-    // queue).
-    bool
-    queue_underflow(queue_t *q) {
+  // Returns true if an underflow has occurred (queue_pop() called on an empty
+  // queue).
+bool queue_underflow(queue_t *q) {
   return q->underflowFlag;
 }
 
-    // Returns true if an overflow has occurred (queue_push() called on a full
-    // queue).
-    bool
-    queue_overflow(queue_t *q) {
+  // Returns true if an overflow has occurred (queue_push() called on a full
+  // queue).
+bool queue_overflow(queue_t *q) {
   return q->overflowFlag;
 }
 
-    // Frees the storage that you malloc'd before.
-    void
-    queue_garbageCollect(queue_t *q) {
+  // Frees the storage that you malloc'd before.
+void queue_garbageCollect(queue_t *q) {
   free(q->data);
 }
