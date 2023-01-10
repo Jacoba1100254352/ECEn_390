@@ -37,15 +37,12 @@
 }
 
     // Get the user-assigned name for the queue.
-    const char *
-    queue_name(queue_t *q) {
-      printf("hi");
+const char *queue_name(queue_t *q) {
   return q->name;
 }
 
     // Returns the capacity of the queue.
-    queue_size_t
-    queue_size(queue_t *q) {
+queue_size_t queue_size(queue_t *q) {
   return q->size;
 }
 
