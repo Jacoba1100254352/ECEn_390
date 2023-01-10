@@ -89,13 +89,20 @@ queue_data_t queue_pop(queue_t *q) {
 
 // If the queue is full, call queue_pop() and then call queue_push().
 // If the queue is not full, just call queue_push().
-void queue_overwritePush(queue_t *q, queue_data_t value) {}
+void queue_overwritePush(queue_t *q, queue_data_t value) {
+  if (queue_full(q))
+    queue_pop(q);
+  
+  queue_push(q, value);
+}
 
 // Provides random-access read capability to the queue.
 // Low-valued indexes access older queue elements while higher-value indexes
 // access newer elements (according to the order that they were added).
 // Print a meaningful error message if an error condition is detected.
-queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {}
+queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {
+
+}
 
 // Returns a count of the elements currently contained in the queue.
 queue_size_t queue_elementCount(queue_t *q) { return q->elementCount; }
