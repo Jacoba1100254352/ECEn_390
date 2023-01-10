@@ -3,6 +3,8 @@
 #include <string.h> // strncpy
 
 #include "queue.h"
+
+#define QUEUE_FULL_MESSAGE "Queue full, data NOT added.\n"
     
   // Allocates memory for the queue (the data* pointer) and initializes all
   // parts of the data structure. Prints out an error message if malloc()
@@ -54,7 +56,17 @@ bool queue_empty(queue_t *q) {}
   // If the queue is not full, pushes a new element into the queue and clears the
   // underflowFlag. IF the queue is full, set the overflowFlag, print an error
   // message and DO NOT change the queue.
-void queue_push(queue_t *q, queue_data_t value) {}
+void queue_push(queue_t *q, queue_data_t value) {
+  if (!queue_full(q)) {
+    q->data[q->indexIn] = value;
+    q->size = q->size + 1;
+    q->indexIn = q->indexIn + 1;
+    q->underflowFlag = false;
+  } else {
+    q->overflowFlag = true;
+    printf(QUEUE_FULL_MESSAGE);
+  }
+}
 
   // If the queue is not empty, remove and return the oldest element in the queue.
   // If the queue is empty, set the underflowFlag, print an error message, and
