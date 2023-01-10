@@ -73,10 +73,10 @@ const char *queue_name(queue_t *q) { return q->name; }
 queue_size_t queue_size(queue_t *q) { return q->size; }
 
 // Returns true if the queue is full.
-bool queue_full(queue_t *q) {}
+bool queue_full(queue_t *q) { return q->size == 200; }
 
 // Returns true if the queue is empty.
-bool queue_empty(queue_t *q) {}
+bool queue_empty(queue_t *q) { return q->size == 0; }
 
 // If the queue is not full, pushes a new element into the queue and clears the
 // underflowFlag. IF the queue is full, set the overflowFlag, print an error
