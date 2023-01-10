@@ -39,6 +39,7 @@
     // Get the user-assigned name for the queue.
     const char *
     queue_name(queue_t *q) {
+      printf("hi");
   return q->name;
 }
 
