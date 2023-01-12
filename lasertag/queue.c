@@ -100,11 +100,10 @@ void queue_overwritePush(queue_t *q, queue_data_t value) {
 // access newer elements (according to the order that they were added).
 // Print a meaningful error message if an error condition is detected.
 queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {
-  if (index > q->indexIn)
+  if (index > q->indexIn || index < q->indexOut)
     printf(QUEUE_READ_ERRORS);
-  else if (index < q->indexOut)
-    printf(QUEUE_READ_ERRORS);
-  else return q->data[index];
+  
+  return q->data[index];
 }
 
 // Returns a count of the elements currently contained in the queue.
