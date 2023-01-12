@@ -41,18 +41,17 @@ void queue_init(queue_t *q, queue_size_t size, const char *name) {
 
 // Get the user-assigned name for the queue.
 const char *queue_name(queue_t *q) {
-  printf("hi");
   return q->name;
 }
 
 // Returns the capacity of the queue.
 queue_size_t queue_size(queue_t *q) { return q->size; }
 
-// Returns true if the queue is full. (200 elements)
-bool queue_full(queue_t *q) { return q->size == 200; }
+// Returns true if the queue is full.
+bool queue_full(queue_t *q) { return q->size == q->elementCount; }
 
 // Returns true if the queue is empty.
-bool queue_empty(queue_t *q) { return q->size == 0; }
+bool queue_empty(queue_t *q) { return !q->elementCount; }
 
   // If the queue is not full, pushes a new element into the queue and clears the
   // underflowFlag. IF the queue is full, set the overflowFlag, print an error
@@ -60,7 +59,6 @@ bool queue_empty(queue_t *q) { return q->size == 0; }
 void queue_push(queue_t *q, queue_data_t value) {
   if (!queue_full(q)) {
     q->data[q->indexIn] = value;
-    q->size++;
     q->elementCount++;
     q->indexIn++;
     q->underflowFlag = false;
@@ -78,12 +76,12 @@ queue_data_t queue_pop(queue_t *q) {
   
   if(!queue_empty(q)) {
     valueRemoved = q->data[q->indexOut];
-    q->size--;
     q->elementCount--;
     q->indexOut++;
+    q->overflowFlag = false;
     return valueRemoved;
   } else {
-    q->underflowFlag = false;
+    q->underflowFlag = true;
     printf(QUEUE_EMPTY_MESSAGE);
   }
 }
