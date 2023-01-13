@@ -35,12 +35,12 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 #include "leds.h"
 #include "lockoutTimer.h"
 #include "mio.h"
+#include "queueTest.h"
 #include "runningModes.h"
 #include "sound.h"
 #include "switches.h"
 #include "transmitter.h"
 #include "trigger.h"
-#include "queueTest.h"
 
 int main() {
   mio_init(false);  // true enables debug prints
@@ -59,6 +59,7 @@ int main() {
   // buffer_runTest(); // M3 T3
   // detector_runTest(); // M3 T3
   // sound_runTest(); // M5
+  printf("Tests finished");
 #endif
 
 #ifdef RUNNING_MODE_M3_T2

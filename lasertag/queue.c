@@ -40,9 +40,7 @@ void queue_init(queue_t *q, queue_size_t size, const char *name) {
 }
 
 // Get the user-assigned name for the queue.
-const char *queue_name(queue_t *q) {
-  return q->name;
-}
+const char *queue_name(queue_t *q) { return q->name; }
 
 // Returns the capacity of the queue.
 queue_size_t queue_size(queue_t *q) { return q->size; }
@@ -53,14 +51,14 @@ bool queue_full(queue_t *q) { return q->size == q->elementCount; }
 // Returns true if the queue is empty.
 bool queue_empty(queue_t *q) { return !q->elementCount; }
 
-  // If the queue is not full, pushes a new element into the queue and clears the
-  // underflowFlag. IF the queue is full, set the overflowFlag, print an error
-  // message and DO NOT change the queue.
+// If the queue is not full, pushes a new element into the queue and clears the
+// underflowFlag. IF the queue is full, set the overflowFlag, print an error
+// message and DO NOT change the queue.
 void queue_push(queue_t *q, queue_data_t value) {
   if (!queue_full(q)) {
     q->data[q->indexIn] = value;
     q->elementCount++;
-    q->indexIn++;
+    q->indexIn = ++q->indexIn % q->size;
     q->underflowFlag = false;
   } else {
     q->overflowFlag = true;
@@ -68,21 +66,22 @@ void queue_push(queue_t *q, queue_data_t value) {
   }
 }
 
-  // If the queue is not empty, remove and return the oldest element in the queue.
-  // If the queue is empty, set the underflowFlag, print an error message, and
-  // DO NOT change the queue.
+// If the queue is not empty, remove and return the oldest element in the queue.
+// If the queue is empty, set the underflowFlag, print an error message, and
+// DO NOT change the queue.
 queue_data_t queue_pop(queue_t *q) {
   queue_data_t valueRemoved;
-  
-  if(!queue_empty(q)) {
+
+  if (!queue_empty(q)) {
     valueRemoved = q->data[q->indexOut];
     q->elementCount--;
-    q->indexOut++;
+    q->indexOut = ++q->indexOut % q->size;
     q->overflowFlag = false;
     return valueRemoved;
   } else {
     q->underflowFlag = true;
     printf(QUEUE_EMPTY_MESSAGE);
+    return QUEUE_RETURN_ERROR_VALUE;
   }
 }
 
@@ -91,7 +90,7 @@ queue_data_t queue_pop(queue_t *q) {
 void queue_overwritePush(queue_t *q, queue_data_t value) {
   if (queue_full(q))
     queue_pop(q);
-  
+
   queue_push(q, value);
 }
 
@@ -100,10 +99,12 @@ void queue_overwritePush(queue_t *q, queue_data_t value) {
 // access newer elements (according to the order that they were added).
 // Print a meaningful error message if an error condition is detected.
 queue_data_t queue_readElementAt(queue_t *q, queue_index_t index) {
-  if (index > q->indexIn || index < q->indexOut)
+  if (index > q->size || index < 0) {
     printf(QUEUE_READ_ERRORS);
-  
-  return q->data[index];
+    return QUEUE_RETURN_ERROR_VALUE;
+  }
+
+  return q->data[(q->indexOut + index) % q->size];
 }
 
 // Returns a count of the elements currently contained in the queue.
