@@ -146,6 +146,12 @@ u32 interrupts_isrInvocationCount();
 // Returns the number of private timer ticks that occur in 1 second.
 u32 interrupts_getPrivateTimerTicksPerSecond();
 
+// Used to determine the input mode for the ADC.
+bool interrupts_getAdcInputMode();
+
+// Use this to read the latest ADC conversion.
+uint32_t interrupts_getAdcData();
+
 // These two functions are provided mainly to remain compatible
 // with code given to students.
 void interrupts_enableTimerGlobalInts();
