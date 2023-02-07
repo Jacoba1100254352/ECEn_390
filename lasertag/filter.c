@@ -1,5 +1,5 @@
 #include "filter.h"
-
+#include <math.h>
 
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.
@@ -202,9 +202,9 @@ double filter_iirFilter(uint16_t filterNumber) {
         z += queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT-1-i) * iirBCoefficientConstants[filterNumber][i];
 
     for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
-        z -= queue_readElementAt(&zQueue, IIR_A_COEFFICIENT_COUNT-1-i) * iirACoefficientConstants[filterNumber][i];
+        z -= queue_readElementAt(&*zQueue, IIR_A_COEFFICIENT_COUNT-1-i) * iirACoefficientConstants[filterNumber][i];
 
-    queue_overwritePush(&zQueue, z); // Push the reuslt onto z
+    queue_overwritePush(&*zQueue, z); // Push the reuslt onto z
     return z;
 }
 
@@ -290,7 +290,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    return &firCoefficients;
+    return &*firCoefficients;
 }
 
 // Returns the number of FIR coefficients.
@@ -300,7 +300,7 @@ uint32_t filter_getFirCoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
-    return &iirACoefficientConstants;
+    return *iirACoefficientConstants;
 }
 
 // Returns the number of A coefficients.
@@ -310,7 +310,7 @@ uint32_t filter_getIirACoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
-    return &iirBCoefficientConstants;
+    return *iirBCoefficientConstants;
 }
 
 // Returns the number of B coefficients.
