@@ -137,7 +137,7 @@ uint32_t filter_getYQueueSize() {
 
 // Returns the decimation value.
 uint16_t filter_getDecimationValue() {
-    
+    return FILTER_FIR_DECIMATION_FACTOR;
 }
 
 // Returns the address of xQueue.
