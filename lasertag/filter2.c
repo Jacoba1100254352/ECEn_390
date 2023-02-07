@@ -14,7 +14,12 @@
 
 #define QUEUE_INIT_VALUE 0.0
 #define FILTER_IIR_FILTER_COUNT 10
+#define FIR_B_COEFFICIENT_COUNT 81
+#define IIR_A_COEFFICIENT_COUNT 10
+#define IIR_B_COEFFICIENT_COUNT 11
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+static queue_t xQueue;	
+static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
  
 void initZQueues() {
@@ -27,8 +32,8 @@ void initZQueues() {
 
 // Must call this prior to using any filter functions.
 void filter_init() {
-      // Init queues and fill them with 0s.
-  queue_init(xQueue, size, "xQueue");  // Call queue_init() on xQueue and fill it with zeros.
+  // Init queues and fill them with 0s.
+  initXQueue();  // Call queue_init() on xQueue and fill it with zeros.
   initYQueue();  // Call queue_init() on yQueue and fill it with zeros.
   initZQueues(); // Call queue_init() on all of the zQueues and fill each z queue with zeros.
   initOutputQueues();  // Call queue_init() on all of the outputQueues and fill each outputQueue with zeros.
