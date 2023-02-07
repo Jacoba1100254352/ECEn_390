@@ -12,6 +12,19 @@
 ***** Main Filter Functions
 ******************************************************************************/
 
+#define QUEUE_INIT_VALUE 0.0
+#define FILTER_IIR_FILTER_COUNT 10
+#define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
+ 
+void initZQueues() {
+  for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
+    queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
+    for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
+     queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+  }
+}
+
 // Must call this prior to using any filter functions.
 void filter_init() {
 
