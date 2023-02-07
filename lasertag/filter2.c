@@ -17,10 +17,12 @@
 #define FIR_B_COEFFICIENT_COUNT 81
 #define IIR_A_COEFFICIENT_COUNT 10
 #define IIR_B_COEFFICIENT_COUNT 11
+#define NUM_OF_PLAYERS 10
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
 static queue_t xQueue;	
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
+static double currentPowerValue[NUM_OF_PLAYERS];
 
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
@@ -227,7 +229,9 @@ double filter_iirFilter(uint16_t filterNumber) {
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
-    
+    if (forceComputeFromScratch) {
+        for (uint32_t i = 0; i < )
+    }
 }
 
 // Returns the last-computed output power value for the IIR filter
