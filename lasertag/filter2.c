@@ -131,11 +131,42 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 {9.0928661148206091e-10, 0.0000000000000000e+00, -4.5464330574103047e-09, 0.0000000000000000e+00, 9.0928661148206094e-09, 0.0000000000000000e+00, -9.0928661148206094e-09, 0.0000000000000000e+00, 4.5464330574103047e-09, 0.0000000000000000e+00, -9.0928661148206091e-10}
 };
  
+#define QUEUE_INIT_VALUE 0.0
+#define FILTER_IIR_FILTER_COUNT 10
+#define FIR_B_COEFFICIENT_COUNT 81
+#define IIR_A_COEFFICIENT_COUNT 10
+#define IIR_B_COEFFICIENT_COUNT 11
+#define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+static queue_t xQueue;	
+static queue_t yQueue;	
+static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
+static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];	
+ 
+static void initXQueue() {
+    queue_init(&xQueue, FIR_B_COEFFICIENT_COUNT, "xQueue");
+    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++)
+        queue_overwritePush(&xQueue, 0.0);
+}
+
+static void initYQueue() {
+    queue_init(&yQueue, IIR_B_COEFFICIENT_COUNT, "yQueue"); 
+    for (uint32_t j = 0; j < IIR_B_COEFFICIENT_COUNT; j++)
+        queue_overwritePush(&yQueue, QUEUE_INIT_VALUE);
+}
 static void initZQueues() {
   for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
     queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
     for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
-     queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+  }
+}
+
+static void initOutputQueues() {
+  for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
+    queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, "outputQueue");
+    for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++)
+        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
   }
 }
 
