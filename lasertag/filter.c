@@ -128,15 +128,36 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 #define IIR_A_COEFFICIENT_COUNT 10
 #define IIR_B_COEFFICIENT_COUNT 11
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
 static queue_t xQueue;	
 static queue_t yQueue;	
-static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
+static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
+static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];	
  
-void initZQueues() {
+static void initXQueue() {
+    queue_init(&xQueue, FIR_B_COEFFICIENT_COUNT, "xQueue");
+    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++)
+        queue_overwritePush(&xQ, 0.0);
+}
+
+static void initYQueue() {
+    queue_init(&yQueue, IIR_B_COEFFICIENT_COUNT, "yQueue"); 
+    for (uint32_t j = 0; j < IIR_B_COEFFICIENT_COUNT; j++)
+        queue_overwritePush(&yQueue, QUEUE_INIT_VALUE);
+}
+static void initZQueues() {
   for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
     queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
     for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
-     queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+  }
+}
+
+static void initOutputQueues() {
+  for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
+    queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, "outputQueue");
+    for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++)
+        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
   }
 }
 
@@ -225,32 +246,32 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-
+    return &firCoefficients;
 }
 
 // Returns the number of FIR coefficients.
 uint32_t filter_getFirCoefficientCount() {
-
+    return FIR_B_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
-
+    return &iirACoefficientConstants;
 }
 
 // Returns the number of A coefficients.
 uint32_t filter_getIirACoefficientCount() {
-
+    return IIR_A_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
-
+    return &iirBCoefficientConstants;
 }
 
 // Returns the number of B coefficients.
 uint32_t filter_getIirBCoefficientCount() {
-
+    return IIR_B_COEFFICIENT_COUNT;
 }
 
 // Returns the size of the yQueue.
@@ -275,10 +296,10 @@ queue_t *filter_getYQueue() {
 
 // Returns the address of zQueue for a specific filter number.
 queue_t *filter_getZQueue(uint16_t filterNumber) {
-    return &zQueue;
+    return &zQueue[filterNumber];
 }
 
-// Returns the address of the IIR output-queue for a specific filter-number.
+// Returns the address of the IIR output-queue for a specific filter number.
 queue_t *filter_getIirOutputQueue(uint16_t filterNumber) {
-
+    return &outputQueue[filterNumber];
 }
