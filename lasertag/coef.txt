@@ -1,4 +1,4 @@
-const static double firCoefficients[FIR_FILTER_TAP_COUNT] = {
+const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
 2.7155425450406482e-04, 
 6.3039002645022389e-05, 
