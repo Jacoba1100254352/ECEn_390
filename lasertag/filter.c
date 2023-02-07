@@ -172,21 +172,36 @@ void filter_init() {
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
 void filter_addNewInput(double x) {
-    
+    queue_overwritePush(&xQueue, x);
 }
 
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-    // Input = queue_t *filter_getXQueue()
-    //
+    // Compute the next y using a for loop
+    // += accumulates the result during the for-loop
+    double y = 0.0;
+    
+    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+        y += queue_readElementAt(&xQueue, FIR_B_COEFFICIENT_COUNT-1-i) * firCoefficients[i];
+    }
+    queue_overwritePush(&yQueue, y); // Push the reuslt onto y
+    return y;
 }
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
 // Output is returned and is also pushed onto zQueue[filterNumber].
 double filter_iirFilter(uint16_t filterNumber) {
-
-    return 
+    double z = 0.0;
+    // This for-loop performs the identical computation to that shown above.
+    for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+        z += queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT-1-i) * iirBCoefficientConstants[filterNumber][i];
+    }
+    for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+        z -= queue_readElementAt(&zQueue, IIR_A_COEFFICIENT_COUNT-1-i) * iirACoefficientConstants[filterNumber][i];
+    }
+    queue_overwritePush(&zQueue, z); // Push the reuslt onto z
+    return z;
 }
 
 // Use this to compute the power for values contained in an outputQueue.
