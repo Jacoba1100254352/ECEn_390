@@ -1,4 +1,5 @@
 #include "filter.h"
+#include "queue.h"
 
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.
@@ -14,7 +15,11 @@
 
 // Must call this prior to using any filter functions.
 void filter_init() {
-
+  // Init queues and fill them with 0s.
+  queue_init(xQueue, size, "xQueue");  // Call queue_init() on xQueue and fill it with zeros.
+  initYQueue();  // Call queue_init() on yQueue and fill it with zeros.
+  initZQueues(); // Call queue_init() on all of the zQueues and fill each z queue with zeros.
+  initOutputQueues();  // Call queue_init() on all of the outputQueues and fill each outputQueue with zeros.
 }
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
@@ -48,7 +53,7 @@ double filter_iirFilter(uint16_t filterNumber) {
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
-    
+
 }
 
 // Returns the last-computed output power value for the IIR filter
