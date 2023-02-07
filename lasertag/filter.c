@@ -129,6 +129,8 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 #define IIR_B_COEFFICIENT_COUNT 11
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
 #define OUTPUT_QUEUE_SIZE 2000 // Change to 20000 if needed
+
+
 static queue_t xQueue;	
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
@@ -218,19 +220,19 @@ double filter_iirFilter(uint16_t filterNumber) {
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
-
+    
 }
 
 // Returns the last-computed output power value for the IIR filter
 // [filterNumber].
 double filter_getCurrentPowerValue(uint16_t filterNumber) {
-
+    return currentPowerValue[filterNumber];
 }
 
 // Sets a current power value for a specific filter number.
 // Useful in testing the detector.
 void filter_setCurrentPowerValue(uint16_t filterNumber, double value) {
-
+    currentPowerValue[filterNumber] = value;
 }
 
 // Get a copy of the current power values.
@@ -239,7 +241,9 @@ void filter_setCurrentPowerValue(uint16_t filterNumber, double value) {
 // detector. Remember that when you pass an array into a C function, changes to
 // the array within that function are reflected in the returned array.
 void filter_getCurrentPowerValues(double powerValues[]) {
-
+    // Assign values of currentPowerValue to powerValues
+    for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
+        powerValues[i] = filter_getCurrentPowerValue(i);
 }
 
 // Using the previously-computed power values that are currently stored in
@@ -250,7 +254,19 @@ void filter_getCurrentPowerValues(double powerValues[]) {
 // maximum value. If the maximum power is zero, make sure to not divide by zero
 // and that *indexOfMaxValue is initialized to a sane value (like zero).
 void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOfMaxValue) {
+    // Initialize the value of indexOfMaxValue
+    *indexOfMaxValue = 0;
 
+    // Find the index containing the max value and assign to indexOfMaxValue
+    for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
+        if filter_getCurrentPowerValue(i) > filter_getCurrentPowerValue(*indexOfMaxValue)
+            *indexOfMaxValue = i;
+    
+    // Copy the currentPowerValues into normalizedArray and normalize if *indexOfMaxValue != 0
+    if (filter_getCurrentPowerValue(*indexOfMaxValue))
+        for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
+            normalizedArray[i] = filter_getCurrentPowerValue(i)/filter_getCurrentPowerValue(*indexOfMaxValue);
+    
 }
 
 /******************************************************************************
