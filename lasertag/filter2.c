@@ -1,4 +1,5 @@
 #include "filter.h"
+#include "coef.txt"
 
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.
@@ -113,7 +114,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-
+    return &firCoefficients;
 }
 
 // Returns the number of FIR coefficients.
