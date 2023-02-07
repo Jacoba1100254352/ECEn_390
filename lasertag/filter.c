@@ -182,9 +182,9 @@ double filter_firFilter() {
     // += accumulates the result during the for-loop
     double y = 0.0;
     
-    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         y += queue_readElementAt(&xQueue, FIR_B_COEFFICIENT_COUNT-1-i) * firCoefficients[i];
-    }
+
     queue_overwritePush(&yQueue, y); // Push the reuslt onto y
     return y;
 }
