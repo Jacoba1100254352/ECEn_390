@@ -343,7 +343,7 @@ queue_t *filter_getZQueue(uint16_t filterNumber) {
     return &zQueue[filterNumber];
 }
 
-// Returns the address of the IIR output-queue for a specific filter-number.
+// Returns the address of the IIR output-queue for a specific filter number.
 queue_t *filter_getIirOutputQueue(uint16_t filterNumber) {
-
+    return &outputQueue[filterNumber];
 }
