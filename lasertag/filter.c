@@ -24,11 +24,15 @@ void filter_addNewInput(double x) {
 
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
-double filter_firFilter();
+double filter_firFilter() {
+
+}
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
 // Output is returned and is also pushed onto zQueue[filterNumber].
-double filter_iirFilter(uint16_t filterNumber);
+double filter_iirFilter(uint16_t filterNumber) {
+
+}
 
 // Use this to compute the power for values contained in an outputQueue.
 // If force == true, then recompute power by using all values in the
@@ -43,23 +47,30 @@ double filter_iirFilter(uint16_t filterNumber);
 // 4. Compute new power as: prev-power - (oldest-value * oldest-value) +
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
-double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch,
-                           bool debugPrint);
+double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
+    
+}
 
 // Returns the last-computed output power value for the IIR filter
 // [filterNumber].
-double filter_getCurrentPowerValue(uint16_t filterNumber);
+double filter_getCurrentPowerValue(uint16_t filterNumber) {
+
+}
 
 // Sets a current power value for a specific filter number.
 // Useful in testing the detector.
-void filter_setCurrentPowerValue(uint16_t filterNumber, double value);
+void filter_setCurrentPowerValue(uint16_t filterNumber, double value) {
+
+}
 
 // Get a copy of the current power values.
 // This function copies the already computed values into a previously-declared
 // array so that they can be accessed from outside the filter software by the
 // detector. Remember that when you pass an array into a C function, changes to
 // the array within that function are reflected in the returned array.
-void filter_getCurrentPowerValues(double powerValues[]);
+void filter_getCurrentPowerValues(double powerValues[]) {
+
+}
 
 // Using the previously-computed power values that are currently stored in
 // currentPowerValue[] array, copy these values into the normalizedArray[]
@@ -68,8 +79,9 @@ void filter_getCurrentPowerValues(double powerValues[]);
 // The pointer argument indexOfMaxValue is used to return the index of the
 // maximum value. If the maximum power is zero, make sure to not divide by zero
 // and that *indexOfMaxValue is initialized to a sane value (like zero).
-void filter_getNormalizedPowerValues(double normalizedArray[],
-                                     uint16_t *indexOfMaxValue);
+void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOfMaxValue) {
+
+}
 
 /******************************************************************************
 ***** Verification-Assisting Functions
@@ -78,37 +90,61 @@ void filter_getNormalizedPowerValues(double normalizedArray[],
 ******************************************************************************/
 
 // Returns the array of FIR coefficients.
-const double *filter_getFirCoefficientArray();
+const double *filter_getFirCoefficientArray() {
+
+}
 
 // Returns the number of FIR coefficients.
-uint32_t filter_getFirCoefficientCount();
+uint32_t filter_getFirCoefficientCount() {
+
+}
 
 // Returns the array of coefficients for a particular filter number.
-const double *filter_getIirACoefficientArray(uint16_t filterNumber);
+const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
+
+}
 
 // Returns the number of A coefficients.
-uint32_t filter_getIirACoefficientCount();
+uint32_t filter_getIirACoefficientCount() {
+
+}
 
 // Returns the array of coefficients for a particular filter number.
-const double *filter_getIirBCoefficientArray(uint16_t filterNumber);
+const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
+
+}
 
 // Returns the number of B coefficients.
-uint32_t filter_getIirBCoefficientCount();
+uint32_t filter_getIirBCoefficientCount() {
+
+}
 
 // Returns the size of the yQueue.
-uint32_t filter_getYQueueSize();
+uint32_t filter_getYQueueSize() {
+
+}
 
 // Returns the decimation value.
-uint16_t filter_getDecimationValue();
+uint16_t filter_getDecimationValue() {
+
+}
 
 // Returns the address of xQueue.
-queue_t *filter_getXQueue();
+queue_t *filter_getXQueue() {
+
+}
 
 // Returns the address of yQueue.
-queue_t *filter_getYQueue();
+queue_t *filter_getYQueue() {
+
+}
 
 // Returns the address of zQueue for a specific filter number.
-queue_t *filter_getZQueue(uint16_t filterNumber);
+queue_t *filter_getZQueue(uint16_t filterNumber) {
+
+}
 
 // Returns the address of the IIR output-queue for a specific filter-number.
-queue_t *filter_getIirOutputQueue(uint16_t filterNumber);
+queue_t *filter_getIirOutputQueue(uint16_t filterNumber) {
+
+}
