@@ -25,7 +25,7 @@ install:
 		make \
 		python3-pip \
 		build-essential \
-		qt5-default \
+		qtbase5-dev \
 		clang-format \
 		zip \
 		python3-pip \
