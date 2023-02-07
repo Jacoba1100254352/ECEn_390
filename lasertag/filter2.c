@@ -1,9 +1,4 @@
 #include "filter.h"
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 5e10d810df9efecbdcf47d837600e5290fc43c61
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.
 
@@ -23,17 +18,14 @@
 #define IIR_B_COEFFICIENT_COUNT 11
 #define NUM_OF_PLAYERS 10
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
-#define OUTPUT_QUEUE_SIZE 2000 // Change to 20000 if needed
+#define OUTPUT_QUEUE_SIZE 2000
+
 static queue_t xQueue;	
 static queue_t yQueue;	
-static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
+static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
+static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];
 static double currentPowerValue[NUM_OF_PLAYERS];
 
-<<<<<<< HEAD
-=======
->>>>>>> 18053da5803b0faa6192be94c6ba439306931664
-=======
->>>>>>> 5e10d810df9efecbdcf47d837600e5290fc43c61
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
 2.7155425450406482e-04, 
@@ -144,30 +136,6 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 };
 
 
-// Filtering routines for the laser-tag project.
-// Filtering is performed by a two-stage filter, as described below.
-
-// 1. First filter is a decimating FIR filter with a configurable number of taps
-// and decimation factor.
-// 2. The output from the decimating FIR filter is passed through a bank of 10
-// IIR filters. The characteristics of the IIR filter are fixed.
-
-/******************************************************************************
-***** Main Filter Functions
-******************************************************************************/
-
-#define QUEUE_INIT_VALUE 0.0
-#define FILTER_IIR_FILTER_COUNT 10
-#define FIR_B_COEFFICIENT_COUNT 81
-#define IIR_A_COEFFICIENT_COUNT 10
-#define IIR_B_COEFFICIENT_COUNT 11
-#define NUM_OF_PLAYERS 10
-#define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
-
-static queue_t xQueue;	
-static queue_t yQueue;	
-static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
-static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];	
  
 static void initXQueue() {
     queue_init(&xQueue, FIR_B_COEFFICIENT_COUNT, "xQueue");
