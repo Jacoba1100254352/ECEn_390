@@ -114,12 +114,12 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    return &firCoefficients;
+    return 
 }
 
 // Returns the number of FIR coefficients.
 uint32_t filter_getFirCoefficientCount() {
-
+    return FIR_B_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
@@ -129,7 +129,7 @@ const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
 
 // Returns the number of A coefficients.
 uint32_t filter_getIirACoefficientCount() {
-
+    return IIR_A_COEFFICIENT_COUNT;
 }
 
 // Returns the array of coefficients for a particular filter number.
@@ -139,32 +139,32 @@ const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
 
 // Returns the number of B coefficients.
 uint32_t filter_getIirBCoefficientCount() {
-
+    return IIR_B_COEFFICIENT_COUNT;
 }
 
 // Returns the size of the yQueue.
 uint32_t filter_getYQueueSize() {
-
+    return yQueue.size;
 }
 
 // Returns the decimation value.
 uint16_t filter_getDecimationValue() {
-
+    return FILTER_FIR_DECIMATION_FACTOR;
 }
 
 // Returns the address of xQueue.
 queue_t *filter_getXQueue() {
-
+    return &xQueue;
 }
 
 // Returns the address of yQueue.
 queue_t *filter_getYQueue() {
-
+    return &yQueue;
 }
 
 // Returns the address of zQueue for a specific filter number.
 queue_t *filter_getZQueue(uint16_t filterNumber) {
-
+    return &zQueue;
 }
 
 // Returns the address of the IIR output-queue for a specific filter-number.
