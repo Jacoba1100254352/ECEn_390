@@ -160,9 +160,9 @@ double filter_firFilter() {
     // += accumulates the result during the for-loop
     double y = 0.0;
     
-    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         y += queue_readElementAt(&xQueue, FIR_B_COEFFICIENT_COUNT-1-i) * firCoefficients[i];
-    }
+
     queue_overwritePush(&yQueue, y); // Push the reuslt onto y
     return y;
 }
@@ -172,12 +172,12 @@ double filter_firFilter() {
 double filter_iirFilter(uint16_t filterNumber) {
     double z = 0.0;
     // This for-loop performs the identical computation to that shown above.
-    for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+    for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         z += queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT-1-i) * iirBCoefficientConstants[filterNumber][i];
-    }
-    for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) { // iteratively adds the (b * input) products.
+
+    for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         z -= queue_readElementAt(&zQueue, IIR_A_COEFFICIENT_COUNT-1-i) * iirACoefficientConstants[filterNumber][i];
-    }
+
     queue_overwritePush(&zQueue, z); // Push the reuslt onto z
     return z;
 }
