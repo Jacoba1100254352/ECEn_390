@@ -27,7 +27,11 @@ void initZQueues() {
 
 // Must call this prior to using any filter functions.
 void filter_init() {
-
+      // Init queues and fill them with 0s.
+  queue_init(xQueue, size, "xQueue");  // Call queue_init() on xQueue and fill it with zeros.
+  initYQueue();  // Call queue_init() on yQueue and fill it with zeros.
+  initZQueues(); // Call queue_init() on all of the zQueues and fill each z queue with zeros.
+  initOutputQueues();  // Call queue_init() on all of the outputQueues and fill each outputQueue with zeros.
 }
 
 // Use this to copy an input into the input queue of the FIR-filter (xQueue).
