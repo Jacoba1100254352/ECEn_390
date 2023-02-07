@@ -114,7 +114,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    return 
+    return &firCoefficients;
 }
 
 // Returns the number of FIR coefficients.
@@ -124,7 +124,7 @@ uint32_t filter_getFirCoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirACoefficientArray(uint16_t filterNumber) {
-
+    return &iirACoefficientConstants;
 }
 
 // Returns the number of A coefficients.
@@ -134,7 +134,7 @@ uint32_t filter_getIirACoefficientCount() {
 
 // Returns the array of coefficients for a particular filter number.
 const double *filter_getIirBCoefficientArray(uint16_t filterNumber) {
-
+    return &iirBCoefficientConstants;
 }
 
 // Returns the number of B coefficients.
