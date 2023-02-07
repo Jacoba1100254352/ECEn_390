@@ -1,6 +1,9 @@
 #include "filter.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5e10d810df9efecbdcf47d837600e5290fc43c61
 // Filtering routines for the laser-tag project.
 // Filtering is performed by a two-stage filter, as described below.
 
@@ -26,8 +29,11 @@ static queue_t yQueue;
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
 static double currentPowerValue[NUM_OF_PLAYERS];
 
+<<<<<<< HEAD
 =======
 >>>>>>> 18053da5803b0faa6192be94c6ba439306931664
+=======
+>>>>>>> 5e10d810df9efecbdcf47d837600e5290fc43c61
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
 2.7155425450406482e-04, 
