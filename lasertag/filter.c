@@ -128,7 +128,7 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 #define IIR_A_COEFFICIENT_COUNT 10
 #define IIR_B_COEFFICIENT_COUNT 11
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
-#define OUTPUT_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE 2000 // Change to 20000 if needed
 static queue_t xQueue;	
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
