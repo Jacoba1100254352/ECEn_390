@@ -271,7 +271,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
     // Find the index containing the max value and assign to indexOfMaxValue
     for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
-        if filter_getCurrentPowerValue(i) > filter_getCurrentPowerValue(*indexOfMaxValue)
+        if (filter_getCurrentPowerValue(i) > filter_getCurrentPowerValue(*indexOfMaxValue))
             *indexOfMaxValue = i;
     
     // Copy the currentPowerValues into normalizedArray and normalize if *indexOfMaxValue != 0
