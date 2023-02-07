@@ -1,5 +1,30 @@
 #include "filter.h"
 
+// Filtering routines for the laser-tag project.
+// Filtering is performed by a two-stage filter, as described below.
+
+// 1. First filter is a decimating FIR filter with a configurable number of taps
+// and decimation factor.
+// 2. The output from the decimating FIR filter is passed through a bank of 10
+// IIR filters. The characteristics of the IIR filter are fixed.
+
+/******************************************************************************
+***** Main Filter Functions
+******************************************************************************/
+
+#define QUEUE_INIT_VALUE 0.0
+#define FILTER_IIR_FILTER_COUNT 10
+#define FIR_B_COEFFICIENT_COUNT 81
+#define IIR_A_COEFFICIENT_COUNT 10
+#define IIR_B_COEFFICIENT_COUNT 11
+#define NUM_OF_PLAYERS 10
+#define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
+#define OUTPUT_QUEUE_SIZE 2000 // Change to 20000 if needed
+static queue_t xQueue;	
+static queue_t yQueue;	
+static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
+static double currentPowerValue[NUM_OF_PLAYERS];
+
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
 2.7155425450406482e-04, 
@@ -219,8 +244,17 @@ double filter_iirFilter(uint16_t filterNumber) {
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
+    double power;
     if (forceComputeFromScratch) {
-        for (uint32_t i = 0; i < )
+        for (uint32_t i = 0; i < OUTPUT_QUEUE_SIZE; i++) {
+            power += pow(queue_readElementAt(&(outputQueue[filterNumber]), i), 2);
+        }
+        currentPowerValue[filterNumber] = power;
+        return power;
+    } else {
+        double oldestVal = queue_readElementAt(&(outputQueue[filterNumber]), 0);
+        double newestVal = queue_readElementAt(&(outputQueue[filterNumber]), 1999);
+        currentPowerValue[filterNumber] = currentPowerValue[filterNumber] - (oldestVal * oldestVal) + (newestVal * newestVal);
     }
 }
 
