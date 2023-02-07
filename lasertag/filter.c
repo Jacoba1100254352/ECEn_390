@@ -13,10 +13,14 @@
 ***** Main Filter Functions
 ******************************************************************************/
 
+queue_t xQueue;
+queue_t yQueue;
+queue_t zQueue;
+
 // Must call this prior to using any filter functions.
 void filter_init() {
   // Init queues and fill them with 0s.
-  queue_init(xQueue, size, "xQueue");  // Call queue_init() on xQueue and fill it with zeros.
+  initXQueue();  // Call queue_init() on xQueue and fill it with zeros.
   initYQueue();  // Call queue_init() on yQueue and fill it with zeros.
   initZQueues(); // Call queue_init() on all of the zQueues and fill each z queue with zeros.
   initOutputQueues();  // Call queue_init() on all of the outputQueues and fill each outputQueue with zeros.
@@ -30,13 +34,15 @@ void filter_addNewInput(double x) {
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-
+    // Input = queue_t *filter_getXQueue()
+    //
 }
 
 // Use this to invoke a single iir filter. Input comes from yQueue.
 // Output is returned and is also pushed onto zQueue[filterNumber].
 double filter_iirFilter(uint16_t filterNumber) {
 
+    return 
 }
 
 // Use this to compute the power for values contained in an outputQueue.
@@ -126,27 +132,27 @@ uint32_t filter_getIirBCoefficientCount() {
 
 // Returns the size of the yQueue.
 uint32_t filter_getYQueueSize() {
-
+    return yQueue.size;
 }
 
 // Returns the decimation value.
 uint16_t filter_getDecimationValue() {
-
+    
 }
 
 // Returns the address of xQueue.
 queue_t *filter_getXQueue() {
-
+    return &xQueue;
 }
 
 // Returns the address of yQueue.
 queue_t *filter_getYQueue() {
-
+    return &yQueue;
 }
 
 // Returns the address of zQueue for a specific filter number.
 queue_t *filter_getZQueue(uint16_t filterNumber) {
-
+    return &zQueue;
 }
 
 // Returns the address of the IIR output-queue for a specific filter-number.
