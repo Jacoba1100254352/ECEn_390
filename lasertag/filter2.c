@@ -23,7 +23,7 @@ static queue_t xQueue;
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];	
  
-void initZQueues() {
+static void initZQueues() {
   for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
     queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
     for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
@@ -164,7 +164,7 @@ queue_t *filter_getYQueue() {
 
 // Returns the address of zQueue for a specific filter number.
 queue_t *filter_getZQueue(uint16_t filterNumber) {
-    return &zQueue;
+    return &zQueue[filterNumber];
 }
 
 // Returns the address of the IIR output-queue for a specific filter-number.
