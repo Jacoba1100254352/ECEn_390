@@ -22,7 +22,7 @@ For questions, contact Brad Hutchings or Jeff Goeders, https://ece.byu.edu/
 #include <assert.h>
 #include <stdio.h>
 
-#include "bufferTest.h"
+//#include "bufferTest.h"
 #include "buttons.h"
 #include "detector.h"
 #include "display.h"
@@ -54,7 +54,7 @@ int main() {
 #ifdef RUNNING_MODE_TESTS
   // interrupts not needed for these tests
   queue_runTest(); // M1
-  // filter_runTest(); // M3 T1
+  filter_runTest(); // M3 T1
   // transmitter_runTest(); // M3 T2
   // buffer_runTest(); // M3 T3
   // detector_runTest(); // M3 T3
