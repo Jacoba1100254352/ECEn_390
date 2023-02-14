@@ -13,6 +13,7 @@
 ***** Main Filter Functions
 ******************************************************************************/
 
+// Definitions
 #define FIRST_INDEX 0
 #define QUEUE_INIT_VALUE 0.0
 #define FILTER_IIR_FILTER_COUNT 10
@@ -26,6 +27,7 @@
 #define OUTPUT_QUEUE_SIZE 2000
 #define POW_OF_TWO 2
 
+// Global Variables
 static queue_t xQueue;	
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
@@ -33,6 +35,7 @@ static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];
 static double currentPowerValue[NUM_OF_PLAYERS];
 static double oldestPowerValue[NUM_OF_PLAYERS];
 
+// FIR Filter Coefficients
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
 2.7155425450406482e-04, 
@@ -116,6 +119,7 @@ const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 2.7155425450406482e-04, 
 4.3579622275120866e-04};
 
+// IIR Filter Coefficients
 const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_A_COEFFICIENT_COUNT] = {
 {-5.9637727070164015e+00, 1.9125339333078248e+01, -4.0341474540744173e+01, 6.1537466875368821e+01, -7.0019717951472188e+01, 6.0298814235238872e+01, -3.8733792862566290e+01, 1.7993533279581058e+01, -5.4979061224867651e+00, 9.0332828533799547e-01},
 {-4.6377947119071443e+00, 1.3502215749461572e+01, -2.6155952405269755e+01, 3.8589668330738348e+01, -4.3038990303252632e+01, 3.7812927599537133e+01, -2.5113598088113793e+01, 1.2703182701888094e+01, -4.2755083391143520e+00, 9.0332828533800291e-01},
@@ -129,6 +133,7 @@ const static double iirACoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_A_COEFF
 {8.5743055776347692e+00, 3.4306584753117889e+01, 8.4035290411037053e+01, 1.3928510844056814e+02, 1.6305115418161620e+02, 1.3648147221895786e+02, 8.0686288623299745e+01, 3.2276361903872115e+01, 7.9045143816244696e+00, 9.0332828533799636e-01}
 };
 
+// IIR filter coefficients for the 10th order IIR filter
 const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFFICIENT_COUNT] = {
 {9.0928661148194738e-10, 0.0000000000000000e+00, -4.5464330574097372e-09, 0.0000000000000000e+00, 9.0928661148194745e-09, 0.0000000000000000e+00, -9.0928661148194745e-09, 0.0000000000000000e+00, 4.5464330574097372e-09, 0.0000000000000000e+00, -9.0928661148194738e-10},
 {9.0928661148185608e-10, 0.0000000000000000e+00, -4.5464330574092806e-09, 0.0000000000000000e+00, 9.0928661148185613e-09, 0.0000000000000000e+00, -9.0928661148185613e-09, 0.0000000000000000e+00, 4.5464330574092806e-09, 0.0000000000000000e+00, -9.0928661148185608e-10},
@@ -142,32 +147,44 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 {9.0928661148206091e-10, 0.0000000000000000e+00, -4.5464330574103047e-09, 0.0000000000000000e+00, 9.0928661148206094e-09, 0.0000000000000000e+00, -9.0928661148206094e-09, 0.0000000000000000e+00, 4.5464330574103047e-09, 0.0000000000000000e+00, -9.0928661148206091e-10}
 };
 
- 
+// XQueue initialization helper function.
 static void initXQueue() {
     queue_init(&xQueue, X_QUEUE_SIZE, "xQueue");
+
+    // Initialize the queue with 0.0.
     for (uint32_t i = 0; i < X_QUEUE_SIZE; i++)
         queue_overwritePush(&xQueue, 0.0);
 }
 
+// YQueue initialization helper function.
 static void initYQueue() {
-    queue_init(&yQueue, Y_QUEUE_SIZE, "yQueue"); 
+    queue_init(&yQueue, Y_QUEUE_SIZE, "yQueue");
+
+    // Initialize the queue with 0.0.
     for (uint32_t j = 0; j < Y_QUEUE_SIZE; j++)
         queue_overwritePush(&yQueue, QUEUE_INIT_VALUE);
 }
+
+// ZQueue initialization helper function.
 static void initZQueues() {
-  for (uint32_t i = 0; i < Z_QUEUE_SIZE; i++) {
-    queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
-    for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
-        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
-  }
+    // Loop through all of the zQueues.
+    for (uint32_t i = 0; i < Z_QUEUE_SIZE; i++) {
+        queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
+        // Initialize each zQueue with 0.0.
+        for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
+            queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+    }
 }
 
+// OutputQueue initialization helper function.
 static void initOutputQueues() {
-  for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
-    queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, "outputQueue");
-    for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++)
-        queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
-  }
+    // Loop through all of the outputQueues.
+    for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
+        queue_init(&(outputQueue[i]), OUTPUT_QUEUE_SIZE, "outputQueue");
+        // Initialize each outputQueue with 0.0.
+        for (uint32_t j = 0; j < OUTPUT_QUEUE_SIZE; j++)
+            queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
+    }
 }
 
 // Must call this prior to using any filter functions.
@@ -187,10 +204,9 @@ void filter_addNewInput(double x) {
 // Invokes the FIR-filter. Input is contents of xQueue.
 // Output is returned and is also pushed on to yQueue.
 double filter_firFilter() {
-    // Compute the next y using a for loop
-    // += accumulates the result during the for-loop
     double y = 0.0;
     
+    // Compute the next y using a for loop and use += to accumulate the result
     for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         y += queue_readElementAt(&xQueue, FIR_B_COEFFICIENT_COUNT-1-i) * firCoefficients[i];
 
@@ -202,11 +218,12 @@ double filter_firFilter() {
 // Output is returned and is also pushed onto zQueue[filterNumber].
 double filter_iirFilter(uint16_t filterNumber) {
     double z = 0.0;
+
     // This for-loop performs the identical computation to that shown above.
     for (uint32_t i = 0; i < Y_QUEUE_SIZE; i++) // iteratively adds the (b * input) products.
         z += queue_readElementAt(&yQueue, Y_QUEUE_SIZE-1-i) * iirBCoefficientConstants[filterNumber][i];
 
-    // 
+    // Read the zQueue and remove the results to z.
     for (uint32_t i = 0; i < Z_QUEUE_SIZE; i++) // iteratively adds the (b * input) products.
         z -= queue_readElementAt(&zQueue[filterNumber], Z_QUEUE_SIZE-1-i) * iirACoefficientConstants[filterNumber][i];
 
@@ -231,9 +248,10 @@ double filter_iirFilter(uint16_t filterNumber) {
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
     double power, oldestVal, newestVal;
 
-    // 
+    // if: Compute the power using the outputQueue, else: use the previous power value
     if (forceComputeFromScratch) {
         power = 0.0;
+        // Compute the power using the outputQueue
         for (uint32_t i = 0; i < OUTPUT_QUEUE_SIZE; i++)
             power += pow(queue_readElementAt(&(outputQueue[filterNumber]), i), POW_OF_TWO);
     
@@ -283,11 +301,13 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
     // Find the index containing the max value and assign to indexOfMaxValue
     for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
+        // If the current value is greater than the value at indexOfMaxValue, assign the index to indexOfMaxValue
         if (filter_getCurrentPowerValue(i) > filter_getCurrentPowerValue(*indexOfMaxValue))
             *indexOfMaxValue = i;
     
     // Copy the currentPowerValues into normalizedArray and normalize if *indexOfMaxValue != 0
     if (filter_getCurrentPowerValue(*indexOfMaxValue))
+        // Normalize the values in normalizedArray
         for (uint32_t i = 0; i < NUM_OF_PLAYERS; i++)
             normalizedArray[i] = filter_getCurrentPowerValue(i)/filter_getCurrentPowerValue(*indexOfMaxValue);
     

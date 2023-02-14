@@ -3,7 +3,7 @@
 *.str
 report
 *.dump
-*_lab*.zip
+*.zip
 /test_repo
 *.o
 a.out
