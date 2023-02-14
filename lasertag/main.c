@@ -53,7 +53,7 @@ int main() {
 
 #ifdef RUNNING_MODE_TESTS
   // interrupts not needed for these tests
-  queue_runTest(); // M1
+  // queue_runTest(); // M1
   filter_runTest(); // M3 T1
   // transmitter_runTest(); // M3 T2
   // buffer_runTest(); // M3 T3

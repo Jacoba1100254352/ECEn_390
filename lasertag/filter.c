@@ -13,20 +13,25 @@
 ***** Main Filter Functions
 ******************************************************************************/
 
+#define FIRST_INDEX 0
 #define QUEUE_INIT_VALUE 0.0
 #define FILTER_IIR_FILTER_COUNT 10
 #define FIR_B_COEFFICIENT_COUNT 81
 #define IIR_A_COEFFICIENT_COUNT 10
 #define IIR_B_COEFFICIENT_COUNT 11
 #define NUM_OF_PLAYERS 10
+#define X_QUEUE_SIZE FIR_B_COEFFICIENT_COUNT
+#define Y_QUEUE_SIZE IIR_B_COEFFICIENT_COUNT
 #define Z_QUEUE_SIZE IIR_A_COEFFICIENT_COUNT
 #define OUTPUT_QUEUE_SIZE 2000
+#define POW_OF_TWO 2
 
 static queue_t xQueue;	
 static queue_t yQueue;	
 static queue_t zQueue[FILTER_IIR_FILTER_COUNT];
 static queue_t outputQueue[FILTER_IIR_FILTER_COUNT];
 static double currentPowerValue[NUM_OF_PLAYERS];
+static double oldestPowerValue[NUM_OF_PLAYERS];
 
 const static double firCoefficients[FIR_B_COEFFICIENT_COUNT] = {
 4.3579622275120866e-04, 
@@ -139,18 +144,18 @@ const static double iirBCoefficientConstants[FILTER_FREQUENCY_COUNT][IIR_B_COEFF
 
  
 static void initXQueue() {
-    queue_init(&xQueue, FIR_B_COEFFICIENT_COUNT, "xQueue");
-    for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++)
+    queue_init(&xQueue, X_QUEUE_SIZE, "xQueue");
+    for (uint32_t i = 0; i < X_QUEUE_SIZE; i++)
         queue_overwritePush(&xQueue, 0.0);
 }
 
 static void initYQueue() {
-    queue_init(&yQueue, IIR_B_COEFFICIENT_COUNT, "yQueue"); 
-    for (uint32_t j = 0; j < IIR_B_COEFFICIENT_COUNT; j++)
+    queue_init(&yQueue, Y_QUEUE_SIZE, "yQueue"); 
+    for (uint32_t j = 0; j < Y_QUEUE_SIZE; j++)
         queue_overwritePush(&yQueue, QUEUE_INIT_VALUE);
 }
 static void initZQueues() {
-  for (uint32_t i = 0; i < FILTER_IIR_FILTER_COUNT; i++) {
+  for (uint32_t i = 0; i < Z_QUEUE_SIZE; i++) {
     queue_init(&(zQueue[i]), Z_QUEUE_SIZE, "zQueue");
     for (uint32_t j = 0; j < Z_QUEUE_SIZE; j++)
         queue_overwritePush(&(zQueue[i]), QUEUE_INIT_VALUE);
@@ -189,7 +194,7 @@ double filter_firFilter() {
     for (uint32_t i = 0; i < FIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
         y += queue_readElementAt(&xQueue, FIR_B_COEFFICIENT_COUNT-1-i) * firCoefficients[i];
 
-    queue_overwritePush(&yQueue, y); // Push the reuslt onto y
+    queue_overwritePush(&yQueue, y); // Push the results onto y
     return y;
 }
 
@@ -198,13 +203,15 @@ double filter_firFilter() {
 double filter_iirFilter(uint16_t filterNumber) {
     double z = 0.0;
     // This for-loop performs the identical computation to that shown above.
-    for (uint32_t i = 0; i < IIR_B_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
-        z += queue_readElementAt(&yQueue, IIR_B_COEFFICIENT_COUNT-1-i) * iirBCoefficientConstants[filterNumber][i];
+    for (uint32_t i = 0; i < Y_QUEUE_SIZE; i++) // iteratively adds the (b * input) products.
+        z += queue_readElementAt(&yQueue, Y_QUEUE_SIZE-1-i) * iirBCoefficientConstants[filterNumber][i];
 
-    for (uint32_t i = 0; i < IIR_A_COEFFICIENT_COUNT; i++) // iteratively adds the (b * input) products.
-        z -= queue_readElementAt(&*zQueue, IIR_A_COEFFICIENT_COUNT-1-i) * iirACoefficientConstants[filterNumber][i];
+    // 
+    for (uint32_t i = 0; i < Z_QUEUE_SIZE; i++) // iteratively adds the (b * input) products.
+        z -= queue_readElementAt(&zQueue[filterNumber], Z_QUEUE_SIZE-1-i) * iirACoefficientConstants[filterNumber][i];
 
-    queue_overwritePush(&*zQueue, z); // Push the reuslt onto z
+    queue_overwritePush(&outputQueue[filterNumber], z); // Push the results onto the outputQueue
+    queue_overwritePush(&zQueue[filterNumber], z); // Push the results onto the zQueue
     return z;
 }
 
@@ -222,18 +229,22 @@ double filter_iirFilter(uint16_t filterNumber) {
 // (newest-value * newest-value). Note that this function will probably need an
 // array to keep track of these values for each of the 10 output queues.
 double filter_computePower(uint16_t filterNumber, bool forceComputeFromScratch, bool debugPrint) {
-    double power;
+    double power, oldestVal, newestVal;
+
+    // 
     if (forceComputeFromScratch) {
-        for (uint32_t i = 0; i < OUTPUT_QUEUE_SIZE; i++) {
-            power += pow(queue_readElementAt(&(outputQueue[filterNumber]), i), 2);
-        }
+        power = 0.0;
+        for (uint32_t i = 0; i < OUTPUT_QUEUE_SIZE; i++)
+            power += pow(queue_readElementAt(&(outputQueue[filterNumber]), i), POW_OF_TWO);
+    
         currentPowerValue[filterNumber] = power;
-        return power;
     } else {
-        double oldestVal = queue_readElementAt(&(outputQueue[filterNumber]), 0);
-        double newestVal = queue_readElementAt(&(outputQueue[filterNumber]), 1999);
-        currentPowerValue[filterNumber] = currentPowerValue[filterNumber] - (oldestVal * oldestVal) + (newestVal * newestVal);
+        oldestVal = oldestPowerValue[filterNumber];
+        newestVal = queue_readElementAt(&(outputQueue[filterNumber]), OUTPUT_QUEUE_SIZE-1);
+        currentPowerValue[filterNumber] -= (oldestVal * oldestVal) + (newestVal * newestVal);
     }
+    oldestPowerValue[filterNumber] = queue_readElementAt(&(outputQueue[filterNumber]), FIRST_INDEX);
+    return power;
 }
 
 // Returns the last-computed output power value for the IIR filter
@@ -290,7 +301,7 @@ void filter_getNormalizedPowerValues(double normalizedArray[], uint16_t *indexOf
 
 // Returns the array of FIR coefficients.
 const double *filter_getFirCoefficientArray() {
-    return &*firCoefficients;
+    return firCoefficients;
 }
 
 // Returns the number of FIR coefficients.
@@ -320,7 +331,7 @@ uint32_t filter_getIirBCoefficientCount() {
 
 // Returns the size of the yQueue.
 uint32_t filter_getYQueueSize() {
-    return yQueue.size;
+    return Y_QUEUE_SIZE;
 }
 
 // Returns the decimation value.
