@@ -43,7 +43,6 @@ void hitLedTimer_init() {
     leds_init(false);
     timer_enable = true; // Unsure if true or false...
     timer_start = false;
-    // Other stuff...
 }
 
 // This is a debug state print routine. It will print the names of the states each
