@@ -9,6 +9,8 @@
     "files.associations": {
         "interrupts.h": "c",
         "queue.h": "c",
-        "*.txt": "c"
+        "*.txt": "c",
+        "leds.h": "c",
+        "mio.h": "c"
     }
 }

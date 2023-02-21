@@ -32,9 +32,9 @@ bool triggerPressed() {
 // Determines whether the trigger switch of the gun is connected
 // (see discussion in lab web pages).
 void trigger_init() {
-      mio_init(false);  // false disables any debug printing if there is a system failure during init.
-  mio_setPinAsOutput(TRIGGER_GUN_TRIGGER_MIO_PIN);  // Configure the signal direction of the pin to be an output.
-  // Other stuff...
+    mio_init(false);  // false disables any debug printing if there is a system failure during init.
+    mio_setPinAsOutput(TRIGGER_GUN_TRIGGER_MIO_PIN);  // Configure the signal direction of the pin to be an output.
+    // Other stuff...
 }
 
 // Standard tick function.
