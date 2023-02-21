@@ -68,6 +68,8 @@ static void debugStatePrint() {
 
 // Standard tick function.
 void hitLedTimer_tick() {
+  debugStatePrint();
+  
       // Perform state update first.
   switch(currentState) {
     case LED_ON_ST:
