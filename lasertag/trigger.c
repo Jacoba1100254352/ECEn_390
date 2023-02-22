@@ -1,4 +1,5 @@
 #include "trigger.h"
+#include "transmitter.h"
 #include "stdbool.h"
 #include "buttons.h"
 #include "mio.h"
@@ -19,18 +20,24 @@
 #define TRIGGER_GUN_TRIGGER_MIO_PIN 10
 #define GUN_TRIGGER_PRESSED 1
 #define GUN_TRIGGER_RELEASED 0
+#define DEBOUNCED_VALUE_TIME 5000 //50 ms
 #define STATE_UPDATE_ERR_MSG "Error in state update"
 #define STATE_ACTION_ERR_MSG "Error in state action"
 #define PRESSED_ST_MSG "In PRESSED_ST"
 #define RELEASED_ST_MSG "In RELEASED_ST"
+#define DEBOUNCE_ST_MSG "In DEBOUNCE_ST"
 
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
+volatile static uint64_t counter;
+volatile static bool checkTriggerValue;
+volatile static bool firstPress;
 
 // States for the controller state machine.
 volatile enum trigger_st_t {
 	PRESSED_ST,
-    RELEASED_ST
+    RELEASED_ST,
+    DEBOUNCE_ST
 };
 volatile static enum trigger_st_t currentState;
 
@@ -47,17 +54,23 @@ bool triggerPressed() {
 // (see discussion in lab web pages).
 void trigger_init() {
     mio_init(false);  // false disables any debug printing if there is a system failure during init.
-    mio_setPinAsOutput(TRIGGER_GUN_TRIGGER_MIO_PIN);  // Configure the signal direction of the pin to be an output.
-    ignoreGunInput = false;
+    mio_setPinAsInput(TRIGGER_GUN_TRIGGER_MIO_PIN);
+    if(triggerPressed()) {
+        ignoreGunInput = true;
+    } else {
+        ignoreGunInput = false;
+    }
     currentState = RELEASED_ST;
     buttons_init();
+    counter = 0;
+    firstPress = false;
 }
 
 // This is a debug state print routine. It will print the names of the states each
 // time tick() is called. It only prints states if they are different than the
 // previous state.
 static void debugStatePrint() {
-  static enum hitLedTimer_st_t previousState;
+  static enum trigger_st_t previousState;
   static bool firstPass = true;
   // Only print the message if:
   // 1. This the first pass and the value for previousState is unknown.
@@ -72,21 +85,48 @@ static void debugStatePrint() {
       case RELEASED_ST:
         printf(RELEASED_ST_MSG);
         break;
+      case DEBOUNCE_ST:
+        printf(DEBOUNCE_ST_MSG);
+        break;
      }
   }
 }
 
 // Standard tick function.
 void trigger_tick() {
+  static enum trigger_st_t previousState;
   debugStatePrint();
   
       // Perform state update first.
   switch(currentState) {
     case PRESSED_ST:
-        
+        if(!triggerPressed()) {
+            previousState = PRESSED_ST;
+            checkTriggerValue = false;
+            counter = 0;
+            currentState = DEBOUNCE_ST;
+        }
       break;
     case RELEASED_ST:
-        
+        if(triggerPressed()) {
+            previousState = RELEASED_ST;
+            checkTriggerValue = true;
+            counter = 0;
+            currentState = DEBOUNCE_ST;
+        }
+      break;
+    case DEBOUNCE_ST:
+        if (checkTriggerValue != triggerPressed()) {
+            currentState = previousState;
+        }
+        if (counter == DEBOUNCED_VALUE_TIME) {
+            if (previousState == RELEASED_ST) {
+                firstPress = true;
+                currentState = PRESSED_ST;
+            }
+            else
+                currentState = RELEASED_ST;
+        }
       break;
     default:
       print(STATE_UPDATE_ERR_MSG);
@@ -96,8 +136,16 @@ void trigger_tick() {
   // Perform state action next.
   switch(currentState) {
     case PRESSED_ST:
+        if (firstPress) {
+            trigger_shots_remaining--;
+            firstPress = false;
+            transmitter_run();
+        }
       break;
     case RELEASED_ST:
+      break;
+    case DEBOUNCE_ST:
+        counter++;
       break;
      default:
       print(STATE_ACTION_ERR_MSG);
@@ -132,5 +180,11 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // is pressed, and a 'U' when the trigger or BTN0 is released.
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
+    while(!(buttons_read() & BUTTONS_BTN3_MASK)) {
+        if (triggerPressed())
+            printf("D");
+        else
+            printf("U");
+    }
 
 }
