@@ -1,4 +1,5 @@
 #include "hitLedTimer.h"
+#include "buttons.h"
 #include "stdbool.h"
 #include "mio.h"
 #include "leds.h"
@@ -40,6 +41,7 @@ void hitLedTimer_init() {
     mio_setPinAsOutput(HIT_LED_TIMER_OUTPUT_PIN);  // Configure the signal direction of the pin to be an output.
     currentState = LED_OFF_ST;
     leds_init(false);
+    buttons_init();
     timer_enable = true; // Unsure if true or false...
     timer_start = false;
 }
@@ -126,8 +128,8 @@ void hitLedTimer_turnLedOn() {
 
 // Turns the gun's hit-LED off.
 void hitLedTimer_turnLedOff() {
-    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_ON);
-    leds_write(LED_ON);
+    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_OFF);
+    leds_write(LED_OFF);
 }
 
 // Disables the hitLedTimer.
@@ -144,5 +146,8 @@ void hitLedTimer_enable() {
 // The test continuously blinks the hit-led on and off.
 // Depends on the interrupt handler to call tick function.
 void hitLedTimer_runTest() {
-
+  while(!(buttons_read() & BUTTONS_BTN3_MASK)) {
+    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_ON);
+    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_OFF);
+  }
 }
