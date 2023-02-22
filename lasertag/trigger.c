@@ -19,6 +19,8 @@
 #define TRIGGER_GUN_TRIGGER_MIO_PIN 10
 #define GUN_TRIGGER_PRESSED 1
 #define GUN_TRIGGER_RELEASED 0
+#define STATE_UPDATE_ERR_MSG "Error in state update"
+#define STATE_ACTION_ERR_MSG "Error in state action"
 
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
@@ -40,9 +42,64 @@ void trigger_init() {
     ignoreGunInput = false;
 }
 
+// This is a debug state print routine. It will print the names of the states each
+// time tick() is called. It only prints states if they are different than the
+// previous state.
+static void debugStatePrint() {
+  static enum hitLedTimer_st_t previousState;
+  static bool firstPass = true;
+  // Only print the message if:
+  // 1. This the first pass and the value for previousState is unknown.
+  // 2. previousState != currentState - this prevents reprinting the same state name over and over.
+  if (previousState != currentState || firstPass) {
+    firstPass = false;                // previousState will be defined, firstPass is false.
+    previousState = currentState;     // keep track of the last state that you were in.
+    switch(currentState) {            // This prints messages based upon the state that you were in.
+      case LED_ON_ST:
+        printf(LED_ON_ST_MSG);
+        break;
+      case LED_OFF_ST:
+        printf(LED_OFF_ST_MSG);
+        break;
+     }
+  }
+}
+
 // Standard tick function.
 void trigger_tick() {
-    
+  debugStatePrint();
+  
+      // Perform state update first.
+  switch(currentState) {
+    case LED_ON_ST:
+        if (timer >= HIT_LED_TIMER_EXPIRE_VALUE) {
+            timer = 0;
+            hitLedTimer_turnLedOff();
+            currentState = LED_OFF_ST;
+        }
+      break;
+    case LED_OFF_ST:
+        if (timer_start) {
+            hitLedTimer_turnLedOn();
+            currentState = LED_ON_ST;
+        }
+      break;
+    default:
+      print(STATE_UPDATE_ERR_MSG);
+      break;
+  }
+  
+  // Perform state action next.
+  switch(currentState) {
+    case LED_ON_ST:
+        timer++;
+      break;
+    case LED_OFF_ST:
+      break;
+     default:
+      print(STATE_ACTION_ERR_MSG);
+      break;
+  }      
 }
 
 // Enable the trigger state machine. The trigger state-machine is inactive until

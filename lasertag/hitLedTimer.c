@@ -1,4 +1,5 @@
 #include "hitLedTimer.h"
+#include "stdbool.h"
 #include "mio.h"
 #include "leds.h"
 
