@@ -21,9 +21,18 @@
 #define GUN_TRIGGER_RELEASED 0
 #define STATE_UPDATE_ERR_MSG "Error in state update"
 #define STATE_ACTION_ERR_MSG "Error in state action"
+#define PRESSED_ST_MSG "In PRESSED_ST"
+#define RELEASED_ST_MSG "In RELEASED_ST"
 
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
+
+// States for the controller state machine.
+volatile enum trigger_st_t {
+	PRESSED_ST,
+    RELEASED_ST
+};
+volatile static enum trigger_st_t currentState;
 
 // Trigger can be activated by either btn0 or the external gun that is attached to TRIGGER_GUN_TRIGGER_MIO_PIN
 // Gun input is ignored if the gun-input is high when the init() function is invoked.
@@ -40,6 +49,8 @@ void trigger_init() {
     mio_init(false);  // false disables any debug printing if there is a system failure during init.
     mio_setPinAsOutput(TRIGGER_GUN_TRIGGER_MIO_PIN);  // Configure the signal direction of the pin to be an output.
     ignoreGunInput = false;
+    currentState = RELEASED_ST;
+    buttons_init();
 }
 
 // This is a debug state print routine. It will print the names of the states each
@@ -55,11 +66,11 @@ static void debugStatePrint() {
     firstPass = false;                // previousState will be defined, firstPass is false.
     previousState = currentState;     // keep track of the last state that you were in.
     switch(currentState) {            // This prints messages based upon the state that you were in.
-      case LED_ON_ST:
-        printf(LED_ON_ST_MSG);
+      case PRESSED_ST:
+        printf(PRESSED_ST_MSG);
         break;
-      case LED_OFF_ST:
-        printf(LED_OFF_ST_MSG);
+      case RELEASED_ST:
+        printf(RELEASED_ST_MSG);
         break;
      }
   }
@@ -71,18 +82,11 @@ void trigger_tick() {
   
       // Perform state update first.
   switch(currentState) {
-    case LED_ON_ST:
-        if (timer >= HIT_LED_TIMER_EXPIRE_VALUE) {
-            timer = 0;
-            hitLedTimer_turnLedOff();
-            currentState = LED_OFF_ST;
-        }
+    case PRESSED_ST:
+        
       break;
-    case LED_OFF_ST:
-        if (timer_start) {
-            hitLedTimer_turnLedOn();
-            currentState = LED_ON_ST;
-        }
+    case RELEASED_ST:
+        
       break;
     default:
       print(STATE_UPDATE_ERR_MSG);
@@ -91,10 +95,9 @@ void trigger_tick() {
   
   // Perform state action next.
   switch(currentState) {
-    case LED_ON_ST:
-        timer++;
+    case PRESSED_ST:
       break;
-    case LED_OFF_ST:
+    case RELEASED_ST:
       break;
      default:
       print(STATE_ACTION_ERR_MSG);
