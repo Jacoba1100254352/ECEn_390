@@ -74,6 +74,6 @@ bool lockoutTimer_runTest() {
   intervalTimer_stop(TIMER_NUM);
   printf("lockout duration: %f \n\r",
          intervalTimer_getTotalDurationInSeconds(TIMER_NUM));
-  // Prints out pass/fail status and other info to console.
-  // Returns true if passes, false otherwise.
+  // TODO: Prints out pass/fail status and other info to console.
+  // TODO: Returns true if passes, false otherwise.
 }
