@@ -1,6 +1,4 @@
-#include "transmitter.h"
 #include "../drivers/buttons.h"
-#include "filter.h"
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -10,7 +8,8 @@
 #include <stdio.h>
 #define DPRINTF(...) printf(__VA_ARGS__)
 #define DPCHAR(ch) outbyte(ch)
-#else #include "transmitter.h"
+#else 
+#include "transmitter.h"
 #include "filter.h"
 #include "mio.h"
 #define DPRINTF(...)
