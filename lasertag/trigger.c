@@ -31,7 +31,7 @@ volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
 volatile static uint64_t counter;
 volatile static bool checkTriggerValue;
-volatile static bool firstPress;
+volatile static bool isFirstPress;
 
 // States for the controller state machine.
 volatile enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST };
@@ -40,7 +40,7 @@ volatile static enum trigger_st_t currentState;
 // Trigger can be activated by either btn0 or the external gun that is attached
 // to TRIGGER_GUN_TRIGGER_MIO_PIN Gun input is ignored if the gun-input is high
 // when the init() function is invoked.
-bool triggerPressed() {
+bool isTriggerPressed() {
   return ((!ignoreGunInput &
            (mio_readPin(TRIGGER_GUN_TRIGGER_MIO_PIN) == GUN_TRIGGER_PRESSED)) ||
           (buttons_read() & BUTTONS_BTN0_MASK));
@@ -54,25 +54,19 @@ void trigger_init() {
   mio_init(false); // false disables any debug printing if there is a system
                    // failure during init.
   mio_setPinAsInput(TRIGGER_GUN_TRIGGER_MIO_PIN);
-  ignoreGunInput = triggerPressed();
+  ignoreGunInput = isTriggerPressed();
   currentState = RELEASED_ST;
   buttons_init();
   counter = 0;
-  firstPress = false;
+  isFirstPress = false;
 }
 
 // This is a debug state print routine. It will print the names of the states
 // each time tick() is called. It only prints states if they are different than
 // the previous state.
 static void debugStatePrint() {
-  static enum trigger_st_t previousState;
-  static bool firstPass = true;
-  // Only print the message if:
-  // 1. This the first pass and the value for previousState is unknown.
-  // 2. previousState != currentState - this prevents reprinting the same state
-  // name over and over.
-  if (previousState != currentState || firstPass) {
-    firstPass = false; // previousState will be defined, firstPass is false.
+  static enum trigger_st_t previousState = DEBOUNCE_ST; // Start it out different from the currentState
+  if (previousState != currentState) {
     previousState = currentState;
     switch (currentState) {
     case PRESSED_ST:
@@ -90,13 +84,13 @@ static void debugStatePrint() {
 
 // Standard tick function.
 void trigger_tick() {
-  static enum trigger_st_t previousState;
+  static enum trigger_st_t previousState = RELEASED_ST;
   debugStatePrint();
 
   // Perform state update first.
   switch (currentState) {
   case PRESSED_ST:
-    if (!triggerPressed()) {
+    if (!isTriggerPressed()) {
       previousState = PRESSED_ST;
       checkTriggerValue = false;
       counter = 0;
@@ -104,7 +98,7 @@ void trigger_tick() {
     }
     break;
   case RELEASED_ST:
-    if (triggerPressed()) {
+    if (isTriggerPressed()) {
       previousState = RELEASED_ST;
       checkTriggerValue = true;
       counter = 0;
@@ -112,12 +106,12 @@ void trigger_tick() {
     }
     break;
   case DEBOUNCE_ST:
-    if (checkTriggerValue != triggerPressed())
+    if (checkTriggerValue != isTriggerPressed())
       currentState = previousState;
 
     if (counter == DEBOUNCED_VALUE_TIME) {
       if (previousState == RELEASED_ST) {
-        firstPress = true;
+        isFirstPress = true;
         currentState = PRESSED_ST;
       } else
         currentState = RELEASED_ST;
@@ -131,9 +125,9 @@ void trigger_tick() {
   // Perform state action next.
   switch (currentState) {
   case PRESSED_ST:
-    if (firstPress) {
+    if (isFirstPress) {
       trigger_shots_remaining--;
-      firstPress = false;
+      isFirstPress = false;
       transmitter_run();
     }
     break;
@@ -172,8 +166,5 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
   while (!(buttons_read() & BUTTONS_BTN3_MASK))
-    if (triggerPressed())
-      printf("D");
-    else
-      printf("U");
+    printf(isTriggerPressed() ? "D" : "U");
 }
