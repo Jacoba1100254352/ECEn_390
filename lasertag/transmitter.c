@@ -38,19 +38,19 @@
 #define TRANSMITTER_WAIT_IN_MS 300
 
 // States for the controller state machine.
-enum clockControl_st_t {
+volatile enum clockControl_st_t {
   init_st,                 // Start here, stay in this state for just one tick.
   wait_for_startFlag_st,   // wait here till the start flag is raised
   low_st,                  // outputs the low signal 0
   high_st                  // outputs the high signal 1
 } current_State = init_st; // start in init_st
 
-static bool firstPass;
-static uint32_t frequency_number;
-static bool startFlag;
-static bool runContinuous;
-static uint32_t pulse_cnt;
-static uint32_t freq_cnt;
+volatile static bool firstPass;
+volatile static uint32_t frequency_number;
+volatile static bool startFlag;
+volatile static bool runContinuous;
+volatile static uint32_t pulse_cnt;
+volatile static uint32_t freq_cnt;
 
 // The transmitter state machine generates a square wave output at the chosen
 // frequency as set by transmitter_setFrequencyNumber(). The step counts for the

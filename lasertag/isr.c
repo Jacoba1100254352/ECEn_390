@@ -14,4 +14,5 @@ void isr_function() {
     trigger_tick();
     hitLedTimer_tick();
     transmitter_tick();
+    hitLedTimer_tick();
 }
