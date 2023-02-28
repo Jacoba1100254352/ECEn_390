@@ -7,10 +7,10 @@
 #define START 0
 #define TIMER_NUM 1
 
-static bool timerRunning;
-static uint32_t lockoutCounter;
+volatile static bool timerRunning;
+volatile static uint32_t lockoutCounter;
 
-enum hitLedTimer_st_t {
+volatile enum hitLedTimer_st_t {
   running_st,
   lockout_st,
 } lockoutCurrentState = running_st;
