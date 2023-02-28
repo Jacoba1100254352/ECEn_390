@@ -1,4 +1,8 @@
-#include "../drivers/buttons.h"
+#include "buttons.h"
+#include "mio.h"
+#include "switches.h"
+#include "stdio.h"
+#include "utils.h"
 
 // Uncomment for debug prints
 // #define DEBUG

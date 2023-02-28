@@ -35,8 +35,7 @@ volatile static bool checkTriggerValue;
 volatile static bool isFirstPress;
 
 // States for the controller state machine.
-volatile enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST };
-volatile static enum trigger_st_t currentState;
+volatile enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST } currentState = RELEASED_ST;
 
 // Trigger can be activated by either btn0 or the external gun that is attached
 // to TRIGGER_GUN_TRIGGER_MIO_PIN Gun input is ignored if the gun-input is high
@@ -168,4 +167,5 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 void trigger_runTest() {
   while (!(buttons_read() & BUTTONS_BTN3_MASK))
     printf(isTriggerPressed() ? "D" : "U");
+  printf("here\n");
 }

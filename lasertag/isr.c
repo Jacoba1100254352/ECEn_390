@@ -1,4 +1,8 @@
 #include "isr.h"
+#include "trigger.h"
+#include "hitLedTimer.h"
+#include "transmitter.h"
+#include "lockoutTimer.h"
 
 // Perform initialization for interrupt and timing related modules.
 void isr_init() {
