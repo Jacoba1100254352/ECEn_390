@@ -1,8 +1,9 @@
 #include "trigger.h"
 #include "buttons.h"
 #include "mio.h"
-#include "stdbool.h"
+#include <stdbool.h>
 #include "transmitter.h"
+#include <stdio.h>
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -118,7 +119,7 @@ void trigger_tick() {
     }
     break;
   default:
-    print(STATE_UPDATE_ERR_MSG);
+    printf(STATE_UPDATE_ERR_MSG);
     break;
   }
 
@@ -137,7 +138,7 @@ void trigger_tick() {
     counter++;
     break;
   default:
-    print(STATE_ACTION_ERR_MSG);
+    printf(STATE_ACTION_ERR_MSG);
     break;
   }
 }

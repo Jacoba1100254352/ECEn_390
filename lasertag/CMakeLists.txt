@@ -2,11 +2,11 @@ add_executable(lasertag.elf
 main.c
 queue.c
 filter.c
-# isr.c
-# trigger.c
-# transmitter.c
-# hitLedTimer.c
-# lockoutTimer.c
+isr.c
+trigger.c
+transmitter.c
+hitLedTimer.c
+lockoutTimer.c
 # buffer.c
 # detector.c
 # game.c
