@@ -109,23 +109,23 @@ void transmitter_tick() {
         mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         current_State = wait_for_startFlag_st;
       }
-      break;
-
-    case high_st:
-      if (pulse_cnt < PULSE_LENGTH) {
-        if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
-          mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-          freq_cnt = RESET;
-          current_State = low_st;
-        } else
-          current_State = high_st;
-      } else {
-        pulse_cnt = RESET;
+    }
+    break;
+  case high_st:
+    if (pulse_cnt < PULSE_LENGTH) {
+      if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
+        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         freq_cnt = RESET;
+        current_State = low_st;
+      } else
+        current_State = high_st;
+    } else {
+      pulse_cnt = RESET;
+      freq_cnt = RESET;
         startFlag = false;
         mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         current_State = wait_for_startFlag_st;
-      }
+    }
     break;
 
   default:
