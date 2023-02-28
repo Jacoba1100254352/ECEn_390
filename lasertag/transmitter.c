@@ -185,18 +185,30 @@ void transmitter_setContinuousMode(bool continuousModeFlag) {
 ***** Test Functions
 ******************************************************************************/
 
-// Prints out the clock waveform to stdio. Terminates when BTN3 is pressed.
-// Does not use interrupts, but calls the tick function in a loop.
+// Prints out the clock waveform to stdio. Terminates when BTN1 is pressed.
+// Prints out one line of 1s and 0s that represent one period of the clock signal, in terms of ticks.
+#define TRANSMITTER_TEST_TICK_PERIOD_IN_MS 10
+#define BOUNCE_DELAY 5
 void transmitter_runTest() {
-  buttons_init();
-  switches_init();
-  transmitter_init();
-  while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
-    transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
-    transmitter_run();
-    transmitter_tick();
-    utils_msDelay(TRANSMITTER_WAIT_IN_MS);
+  printf("starting transmitter_runTest()\n");
+  mio_init(false);
+  buttons_init();                                         // Using buttons
+  switches_init();                                        // and switches.
+  transmitter_init();                                     // init the transmitter.
+  transmitter_enableTestMode();                           // Prints diagnostics to stdio.
+  while (!(buttons_read() & BUTTONS_BTN1_MASK)) {         // Run continuously until BTN1 is pressed.
+    uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
+    transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
+    transmitter_run();                                    // Start the transmitter.
+    while (transmitter_running()) {                       // Keep ticking until it is done.
+      transmitter_tick();                                 // tick.
+      utils_msDelay(TRANSMITTER_TEST_TICK_PERIOD_IN_MS);  // short delay between ticks.
+    }
+    printf("completed one test period.\n");
   }
+  transmitter_disableTestMode();
+  do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
+  printf("exiting transmitter_runTest()\n");
 }
 
 // Tests the transmitter in non-continuous mode.
