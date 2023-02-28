@@ -109,10 +109,7 @@ void hitLedTimer_tick() {
 
 // Calling this starts the timer.
 void hitLedTimer_start() {
-    if (timer_enable)
-        timer_start = true;
-    else
-        timer_start = false;
+    timer_start = (timer_enable);
 }
 
 // Returns true if the timer is currently running.
