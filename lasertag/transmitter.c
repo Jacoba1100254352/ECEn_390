@@ -39,13 +39,16 @@
 #define RESET 0
 #define TRANSMITTER_WAIT_IN_MS 300
 
+#define Wait_for_startFlag_st_MSG "In wait_for_startFlag_st"
+#define Low_st_MSG "In low_st"
+#define High_st_MSG "In high_st"
+
 // States for the controller state machine.
-volatile enum clockControl_st_t {
-  init_st,                 // Start here, stay in this state for just one tick.
+volatile enum transmitter_st_t {
   wait_for_startFlag_st,   // wait here till the start flag is raised
   low_st,                  // outputs the low signal 0
   high_st                  // outputs the high signal 1
-} current_State = init_st; // start in init_st
+} current_State = wait_for_startFlag_st; // start in init_st
 
 volatile static bool firstPass;
 volatile static uint32_t frequency_number;
@@ -65,9 +68,9 @@ void transmitter_init() {
                    // failure during init.
   mio_setPinAsOutput(TRANSMITTER_OUTPUT_PIN); // Configure the signal direction
                                               // of the pin to be an output.
-                                              // Other stuff...
+  mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
   firstPass = true;
-  frequency_number = 0;
+  frequency_number = 1471;
   startFlag = false;
   runContinuous = false;
   pulse_cnt = 0;
@@ -75,14 +78,33 @@ void transmitter_init() {
   counter = 0;
 }
 
+// This is a debug state print routine. It will print the names of the states
+// each time tick() is called. It only prints states if they are different than
+// the previous state.
+static void debugStatePrint() {
+  static enum transmitter_st_t previousState = wait_for_startFlag_st; // Start it out different from the currentState
+  if (previousState != current_State) {
+    previousState = current_State;
+    switch (current_State) {
+    case wait_for_startFlag_st:
+      printf(Wait_for_startFlag_st_MSG);
+      break;
+    case low_st:
+      printf(Low_st_MSG);
+      break;
+    case high_st:
+      printf(High_st_MSG);
+      break;
+    }
+  }
+}
+
 // Standard tick function.
 void transmitter_tick() {
+  debugStatePrint();
 
     // Perform state update next
   switch (current_State) {
-    case init_st:
-      current_State = wait_for_startFlag_st;
-      break;
     case wait_for_startFlag_st:
       if (startFlag)
         current_State = low_st;
@@ -94,7 +116,7 @@ void transmitter_tick() {
       
     case low_st:
       if (pulse_cnt < PULSE_LENGTH) {
-        if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
+        if (freq_cnt >= (frequency_number * FIFTY_PERCENT_DUTY_CYCLE)) {
           mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_HIGH_VALUE);
           freq_cnt = RESET;
           current_State = high_st;
@@ -107,11 +129,10 @@ void transmitter_tick() {
         mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         current_State = wait_for_startFlag_st;
       }
-    }
     break;
   case high_st:
     if (pulse_cnt < PULSE_LENGTH) {
-      if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
+      if (freq_cnt >= (frequency_number * FIFTY_PERCENT_DUTY_CYCLE)) {
         mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         freq_cnt = RESET;
         current_State = low_st;
@@ -134,10 +155,6 @@ void transmitter_tick() {
 
   // Perform state action first
   switch (current_State) {
-    case init_st:
-      mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-      break;
-
     case wait_for_startFlag_st:
       break;
 
@@ -164,6 +181,7 @@ bool transmitter_running() { return startFlag; }
 // transmitter stops and transmitter_run() is called again.
 void transmitter_setFrequencyNumber(uint16_t frequencyNumber) {
   frequency_number = filter_frequencyTickTable[frequencyNumber];
+  
 }
 
 // Returns the current frequency setting.
@@ -185,7 +203,8 @@ void transmitter_setContinuousMode(bool continuousModeFlag) {
 ***** Test Functions
 ******************************************************************************/
 
-// Prints out the clock waveform to stdio. Terminates when BTN1 is pressed.
+// Prints out the clock waveform to stdio. Terminates when BTN3 is pressed.
+// Does not use interrupts, but calls the tick function in a loop.
 // Prints out one line of 1s and 0s that represent one period of the clock signal, in terms of ticks.
 #define TRANSMITTER_TEST_TICK_PERIOD_IN_MS 10
 #define BOUNCE_DELAY 5
@@ -195,8 +214,8 @@ void transmitter_runTest() {
   buttons_init();                                         // Using buttons
   switches_init();                                        // and switches.
   transmitter_init();                                     // init the transmitter.
-  transmitter_enableTestMode();                           // Prints diagnostics to stdio.
-  while (!(buttons_read() & BUTTONS_BTN1_MASK)) {         // Run continuously until BTN1 is pressed.
+  //transmitter_enableTestMode();                           // Prints diagnostics to stdio.
+  while (!(buttons_read() & BUTTONS_BTN3_MASK)) {         // Run continuously until BTN1 is pressed.
     uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
     transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
     transmitter_run();                                    // Start the transmitter.
@@ -206,7 +225,7 @@ void transmitter_runTest() {
     }
     printf("completed one test period.\n");
   }
-  transmitter_disableTestMode();
+  //transmitter_disableTestMode();
   do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
   printf("exiting transmitter_runTest()\n");
 }
