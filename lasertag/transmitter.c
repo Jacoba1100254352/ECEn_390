@@ -199,8 +199,7 @@ void transmitter_runTest() {
     while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
       transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
       transmitter_run();
-      while (transmitter_running())
-        transmitter_tick();
+      transmitter_tick();
       utils_msDelay(TRANSMITTER_WAIT_IN_MS);
     }
   } else {
@@ -228,8 +227,7 @@ void transmitter_runTestNoncontinuous() {
   while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
     transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
     transmitter_run();
-    while (transmitter_running())
-      ;
+    transmitter_tick();
     utils_msDelay(TRANSMITTER_WAIT_IN_MS);
   }
 }
@@ -249,6 +247,8 @@ void transmitter_runTestContinuous() {
   switches_init();
   transmitter_setContinuousMode(true);
   transmitter_run();
-  while (!(buttons_read() & BUTTONS_BTN3_MASK))
+  while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
     transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
+    transmitter_tick();
+  }
 }
