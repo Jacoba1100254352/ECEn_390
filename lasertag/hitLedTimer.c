@@ -25,7 +25,7 @@
 #define LED_ON_ST_MSG "In LED_ON_ST"
 #define LED_OFF_ST_MSG "In LED_OFF_ST"
 
-volatile static uint64_t timer = 0;
+volatile static uint64_t timer;
 volatile static bool timer_enable;
 volatile static bool timer_start;
 
@@ -43,6 +43,7 @@ void hitLedTimer_init() {
     currentState = LED_OFF_ST;
     leds_init(false);
     buttons_init();
+    timer = 0;
     timer_enable = true; // Unsure if true or false...
     timer_start = false;
 }
@@ -51,15 +52,10 @@ void hitLedTimer_init() {
 // time tick() is called. It only prints states if they are different than the
 // previous state.
 static void debugStatePrint() {
-  static enum hitLedTimer_st_t previousState;
-  static bool firstPass = true;
-  // Only print the message if:
-  // 1. This the first pass and the value for previousState is unknown.
-  // 2. previousState != currentState - this prevents reprinting the same state name over and over.
-  if (previousState != currentState || firstPass) {
-    firstPass = false;                // previousState will be defined, firstPass is false.
-    previousState = currentState;     // keep track of the last state that you were in.
-    switch(currentState) {            // This prints messages based upon the state that you were in.
+  static enum hitLedTimer_st_t previousState = LED_ON_ST; // Start it out different from the currentState
+  if (previousState != currentState) { // only print if the state has changed
+    previousState = currentState;     // update previous state
+    switch(currentState) {            // print message based on state
       case LED_ON_ST:
         printf(LED_ON_ST_MSG);
         break;
@@ -110,7 +106,7 @@ void hitLedTimer_tick() {
 
 // Calling this starts the timer.
 void hitLedTimer_start() {
-    timer_start = (timer_enable);
+    timer_start = timer_enable;
 }
 
 // Returns true if the timer is currently running.
