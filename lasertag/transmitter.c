@@ -34,14 +34,14 @@
 #define TRANSMITTER_OUTPUT_PIN 13
 #define TRANSMITTER_HIGH_VALUE 1
 #define TRANSMITTER_LOW_VALUE 0
-#define PULSE_LENGTH 20000
+#define PULSE_LENGTH 200
 #define FIFTY_PERCENT_DUTY_CYCLE 1 / 2
 #define RESET 0
 #define TRANSMITTER_WAIT_IN_MS 300
 
-#define Wait_for_startFlag_st_MSG "In wait_for_startFlag_st"
-#define Low_st_MSG "In low_st"
-#define High_st_MSG "In high_st"
+#define Wait_for_startFlag_st_MSG "In wait_for_startFlag_st\n"
+#define Low_st_MSG "In low_st\n"
+#define High_st_MSG "In high_st\n"
 
 // States for the controller state machine.
 volatile enum transmitter_st_t {
@@ -70,7 +70,7 @@ void transmitter_init() {
                                               // of the pin to be an output.
   mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
   firstPass = true;
-  frequency_number = 1471;
+  frequency_number = 0;
   startFlag = false;
   runContinuous = false;
   pulse_cnt = 0;
@@ -88,12 +88,15 @@ static void debugStatePrint() {
     switch (current_State) {
     case wait_for_startFlag_st:
       printf(Wait_for_startFlag_st_MSG);
+      fflush(stdout);
       break;
     case low_st:
       printf(Low_st_MSG);
+      fflush(stdout);
       break;
     case high_st:
       printf(High_st_MSG);
+      fflush(stdout);
       break;
     }
   }
@@ -239,16 +242,23 @@ void transmitter_runTest() {
 // Should change frequency in response to the slide switches.
 // Depends on the interrupt handler to call tick function.
 void transmitter_runTestNoncontinuous() {
-  buttons_init();
-  switches_init();
-  transmitter_init();
+  printf("starting transmitter_runTestNoncontinuous()\n");
+  mio_init(false);
+  buttons_init();                                         // Using buttons
+  switches_init();                                        // and switches.
+  transmitter_init();  
   transmitter_setContinuousMode(false);
   while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
-    transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
+    uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
+    transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
     transmitter_run();
-    transmitter_tick();
-    utils_msDelay(TRANSMITTER_WAIT_IN_MS);
+    while (transmitter_running()) {                       // Keep ticking until it is done.
+      transmitter_tick();                                 // tick.
+      utils_msDelay(TRANSMITTER_TEST_TICK_PERIOD_IN_MS);  // short delay between ticks.
+    }
   }
+    do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
+    printf("exiting transmitter_runTestNoncontinuous()\n");
 }
 
 // Tests the transmitter in continuous mode.
@@ -261,14 +271,20 @@ void transmitter_runTestNoncontinuous() {
 // Test runs until BTN3 is pressed.
 // Depends on the interrupt handler to call tick function.
 void transmitter_runTestContinuous() {
-  buttons_init();
-  switches_init();
-  transmitter_init();
+  printf("starting transmitter_runTestNoncontinuous()\n");
+  mio_init(false);
+  buttons_init();                                         // Using buttons
+  switches_init();                                        // and switches.
+  transmitter_init();  
   transmitter_setContinuousMode(true);
-    while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
-      transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
-      transmitter_run();
-      transmitter_tick();
-      utils_msDelay(TRANSMITTER_WAIT_IN_MS);
+  while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
+    uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
+    transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
+    transmitter_run();
+    while (transmitter_running()) {                       // Keep ticking until it is done.
+      transmitter_tick();                                 // tick.
     }
+  }
+    do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
+    printf("exiting transmitter_runTestNoncontinuous()\n");
 }
