@@ -89,7 +89,7 @@ void hitLedTimer_tick() {
         }
       break;
     default:
-      print(STATE_UPDATE_ERR_MSG);
+      printf(STATE_UPDATE_ERR_MSG);
       break;
   }
   
@@ -101,7 +101,7 @@ void hitLedTimer_tick() {
     case LED_OFF_ST:
       break;
      default:
-      print(STATE_ACTION_ERR_MSG);
+      printf(STATE_ACTION_ERR_MSG);
       break;
   }  
 
