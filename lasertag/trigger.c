@@ -167,5 +167,4 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 void trigger_runTest() {
   while (!(buttons_read() & BUTTONS_BTN3_MASK))
     printf(isTriggerPressed() ? "D" : "U");
-  printf("here\n");
 }

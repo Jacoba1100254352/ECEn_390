@@ -55,6 +55,7 @@ volatile static bool startFlag;
 volatile static bool runContinuous;
 volatile static uint32_t pulse_cnt;
 volatile static uint32_t freq_cnt;
+volatile static uint64_t counter;
 
 // The transmitter state machine generates a square wave output at the chosen
 // frequency as set by transmitter_setFrequencyNumber(). The step counts for the
@@ -73,79 +74,85 @@ void transmitter_init() {
   runContinuous = false;
   pulse_cnt = 0;
   freq_cnt = 0;
+  counter = 0;
 }
 
 // Standard tick function.
 void transmitter_tick() {
-  // Perform state action first
+
+    // Perform state update next
   switch (current_State) {
-  case init_st:
-    mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
+    case init_st:
+      current_State = wait_for_startFlag_st;
+      break;
+    case wait_for_startFlag_st:
+      if (startFlag)
+        current_State = low_st;
+      else {
+        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
+        current_State = wait_for_startFlag_st;
+      }
+      break;
+      
+    case low_st:
+      if (pulse_cnt < PULSE_LENGTH) {
+        if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
+          mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_HIGH_VALUE);
+          freq_cnt = RESET;
+          current_State = high_st;
+        } else
+          current_State = low_st;
+      } else {
+        pulse_cnt = RESET;
+        freq_cnt = RESET;
+        startFlag = false;
+        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
+        current_State = wait_for_startFlag_st;
+      }
+      break;
+
+    case high_st:
+      if (pulse_cnt < PULSE_LENGTH) {
+        if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
+          mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
+          freq_cnt = RESET;
+          current_State = low_st;
+        } else
+          current_State = high_st;
+      } else {
+        pulse_cnt = RESET;
+        freq_cnt = RESET;
+        startFlag = false;
+        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
+        current_State = wait_for_startFlag_st;
+      }
     break;
-  case wait_for_startFlag_st:
-    break;
-  case low_st:
-  case high_st:
-    pulse_cnt++;
-    freq_cnt++;
-    break;
+
   default:
     printf("transmitter_tick state update: hit default\n\r");
     break;
   }
 
-  // Perform state update next
+
+  // Perform state action first
   switch (current_State) {
-  case init_st:
-    current_State = wait_for_startFlag_st;
-    break;
-  case wait_for_startFlag_st:
-    if (startFlag)
-      current_State = low_st;
-    else {
+    case init_st:
       mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-      current_State = wait_for_startFlag_st;
-    }
-    break;
-  case low_st:
-    if (pulse_cnt < PULSE_LENGTH) {
-      if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
-        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_HIGH_VALUE);
-        freq_cnt = RESET;
-        current_State = high_st;
-      } else
-        current_State = low_st;
-    } else {
-      pulse_cnt = RESET;
-      freq_cnt = RESET;
-      if (!runContinuous) {
-        startFlag = false;
-        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-        current_State = wait_for_startFlag_st;
-      }
-    }
-    break;
-  case high_st:
-    if (pulse_cnt < PULSE_LENGTH) {
-      if (freq_cnt >= frequency_number * FIFTY_PERCENT_DUTY_CYCLE) {
-        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-        freq_cnt = RESET;
-        current_State = low_st;
-      } else
-        current_State = high_st;
-    } else {
-      pulse_cnt = RESET;
-      freq_cnt = RESET;
-      if (!runContinuous) {
-        startFlag = false;
-        mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
-        current_State = wait_for_startFlag_st;
-      }
-    }
-    break;
-  default:
-    printf("transmitter_tick state action: hit default\n\r");
-    break;
+      break;
+
+    case wait_for_startFlag_st:
+      break;
+
+    case low_st:
+
+    case high_st:
+      pulse_cnt++;
+      freq_cnt++;
+      break;
+
+    default:
+      printf("transmitter_tick state action: hit default\n\r");
+      break;
   }
 }
 
@@ -193,13 +200,15 @@ void transmitter_runTest() {
       transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
       transmitter_run();
       while (transmitter_running())
-        ;
+        transmitter_tick();
       utils_msDelay(TRANSMITTER_WAIT_IN_MS);
     }
   } else {
     transmitter_run();
-    while (true)
+    while (true) {
       transmitter_setFrequencyNumber(switches_read() % FILTER_FREQUENCY_COUNT);
+      transmitter_tick();
+    }
   }
 }
 
