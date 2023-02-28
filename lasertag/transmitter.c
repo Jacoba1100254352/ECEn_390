@@ -1,7 +1,7 @@
 #include "buttons.h"
 #include "mio.h"
 #include "switches.h"
-#include "stdio.h"
+#include <stdio.h>
 #include "utils.h"
 
 // Uncomment for debug prints
@@ -9,13 +9,11 @@
 
 #if defined(DEBUG)
 #include "xil_printf.h"
-#include <stdio.h>
 #define DPRINTF(...) printf(__VA_ARGS__)
 #define DPCHAR(ch) outbyte(ch)
 #else 
 #include "transmitter.h"
 #include "filter.h"
-#include "mio.h"
 #define DPRINTF(...)
 #define DPCHAR(ch)
 #endif
@@ -144,7 +142,6 @@ void transmitter_tick() {
       break;
 
     case low_st:
-
     case high_st:
       pulse_cnt++;
       freq_cnt++;
