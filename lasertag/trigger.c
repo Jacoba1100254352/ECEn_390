@@ -19,6 +19,11 @@
 #define DPCHAR(ch)
 #endif
 
+
+/******************
+*   DEFINITIONS   *
+******************/
+
 #define TRIGGER_GUN_TRIGGER_MIO_PIN 10
 #define GUN_TRIGGER_PRESSED 1
 #define GUN_TRIGGER_RELEASED 0
@@ -30,6 +35,11 @@
 #define DEBOUNCE_ST_MSG "In DEBOUNCE_ST\n"
 #define BOUNCE_DELAY 5
 
+
+/********************************
+*   GLOBAL VOLATILE VARIABLES   *
+********************************/
+
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
 volatile static uint64_t counter;
@@ -38,6 +48,11 @@ volatile static bool isFirstPress;
 
 // States for the controller state machine.
 volatile static enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST } currentState = RELEASED_ST;
+
+
+/****************
+*   FUNCTIONS   *
+****************/
 
 // Trigger can be activated by either btn0 or the external gun that is attached
 // to TRIGGER_GUN_TRIGGER_MIO_PIN Gun input is ignored if the gun-input is high
@@ -70,16 +85,17 @@ static void debugStatePrint() {
   static enum trigger_st_t previousState = DEBOUNCE_ST; // Start it out different from the currentState
   if (previousState != currentState) {
     previousState = currentState;
+    // Print the name of the state.
     switch (currentState) {
-    case PRESSED_ST:
-      printf(PRESSED_ST_MSG);
-      break;
-    case RELEASED_ST:
-      printf(RELEASED_ST_MSG);
-      break;
-    case DEBOUNCE_ST:
-      printf(DEBOUNCE_ST_MSG);
-      break;
+      case PRESSED_ST:
+        printf(PRESSED_ST_MSG);
+        break;
+      case RELEASED_ST:
+        printf(RELEASED_ST_MSG);
+        break;
+      case DEBOUNCE_ST:
+        printf(DEBOUNCE_ST_MSG);
+        break;
     }
   }
 }
@@ -91,66 +107,66 @@ void trigger_tick() {
 
   // Perform state update first.
   switch (currentState) {
-  case PRESSED_ST:
-    // If the trigger is released, then we need to go to the debounce state
-    if (!isTriggerPressed()) {
-      previousState = PRESSED_ST;
-      DPCHAR('D');
-      DPCHAR('\n');
-      checkTriggerValue = false;
-      counter = 0;
-      currentState = DEBOUNCE_ST;
-    }
-    break;
-  case RELEASED_ST:
-    // If the trigger is pressed, then we need to go to the debounce state
-    if (isTriggerPressed()) {
-      previousState = RELEASED_ST;
-      DPCHAR('U');
-      DPCHAR('\n');
-      checkTriggerValue = true;
-      counter = 0;
-      currentState = DEBOUNCE_ST;
-    }
-    break;
-  case DEBOUNCE_ST:
-    // If the trigger value has changed, then we need to go back to the previous state
-    if (checkTriggerValue != isTriggerPressed())
-      currentState = previousState;
+    case PRESSED_ST:
+      // If the trigger is released, then we need to go to the debounce state
+      if (!isTriggerPressed()) {
+        previousState = PRESSED_ST;
+        DPCHAR('D');
+        DPCHAR('\n');
+        checkTriggerValue = false;
+        counter = 0;
+        currentState = DEBOUNCE_ST;
+      }
+      break;
+    case RELEASED_ST:
+      // If the trigger is pressed, then we need to go to the debounce state
+      if (isTriggerPressed()) {
+        previousState = RELEASED_ST;
+        DPCHAR('U');
+        DPCHAR('\n');
+        checkTriggerValue = true;
+        counter = 0;
+        currentState = DEBOUNCE_ST;
+      }
+      break;
+    case DEBOUNCE_ST:
+      // If the trigger value has changed, then we need to go back to the previous state
+      if (checkTriggerValue != isTriggerPressed())
+        currentState = previousState;
 
-    // Check if the counter has reached the debounce time
-    if (counter == DEBOUNCED_VALUE_TIME) {
-      // Transition based on previous state
-      if (previousState == RELEASED_ST) { 
-        isFirstPress = true;
-        currentState = PRESSED_ST;
-      } else
-        currentState = RELEASED_ST;
-    }
-    break;
-  default:
-    printf(STATE_UPDATE_ERR_MSG);
-    break;
+      // Check if the counter has reached the debounce time
+      if (counter == DEBOUNCED_VALUE_TIME) {
+        // Transition based on previous state
+        if (previousState == RELEASED_ST) { 
+          isFirstPress = true;
+          currentState = PRESSED_ST;
+        } else
+          currentState = RELEASED_ST;
+      }
+      break;
+    default:
+      printf(STATE_UPDATE_ERR_MSG);
+      break;
   }
 
   // Perform state action next.
   switch (currentState) {
-  case PRESSED_ST:
-    if (isFirstPress) { // Only decrement the number of shots remaining if this
-                        // is the first press of the trigger.
-      trigger_shots_remaining--;
-      isFirstPress = false;
-      transmitter_run();
-    }
-    break;
-  case RELEASED_ST:
-    break;
-  case DEBOUNCE_ST:
-    counter++;
-    break;
-  default:
-    printf(STATE_ACTION_ERR_MSG);
-    break;
+    case PRESSED_ST:
+      if (isFirstPress) { // Only decrement the number of shots remaining if this
+                          // is the first press of the trigger.
+        trigger_shots_remaining--;
+        isFirstPress = false;
+        transmitter_run();
+      }
+      break;
+    case RELEASED_ST:
+      break;
+    case DEBOUNCE_ST:
+      counter++;
+      break;
+    default:
+      printf(STATE_ACTION_ERR_MSG);
+      break;
   }
 }
 
@@ -177,7 +193,8 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // is pressed, and a 'U' when the trigger or BTN0 is released.
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
-  while (!(buttons_read() & BUTTONS_BTN3_MASK)) // Check if BTN3 is pressed
+  // Initialize trigger when button 3 is pressed
+  while (!(buttons_read() & BUTTONS_BTN3_MASK))
     trigger_enable();
 
   // Wait for button release
