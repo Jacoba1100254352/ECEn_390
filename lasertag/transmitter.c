@@ -37,6 +37,8 @@
 #define FIFTY_PERCENT_DUTY_CYCLE 1 / 2
 #define RESET 0
 #define TRANSMITTER_WAIT_IN_MS 300
+#define TRANSMITTER_TEST_TICK_PERIOD_IN_MS 10
+#define BOUNCE_DELAY 5
 
 #define Wait_for_startFlag_st_MSG "In wait_for_startFlag_st\n"
 #define Low_st_MSG "In low_st\n"
@@ -213,8 +215,6 @@ void transmitter_setContinuousMode(bool continuousModeFlag) {
 // Prints out the clock waveform to stdio. Terminates when BTN3 is pressed.
 // Does not use interrupts, but calls the tick function in a loop.
 // Prints out one line of 1s and 0s that represent one period of the clock signal, in terms of ticks.
-#define TRANSMITTER_TEST_TICK_PERIOD_IN_MS 10
-#define BOUNCE_DELAY 5
 void transmitter_runTest() {
   pulse_length = 200;
   printf("starting transmitter_runTest()\n");
@@ -222,7 +222,6 @@ void transmitter_runTest() {
   buttons_init();                                         // Using buttons
   switches_init();                                        // and switches.
   transmitter_init();                                     // init the transmitter.
-  //transmitter_enableTestMode();                           // Prints diagnostics to stdio.
   while (!(buttons_read() & BUTTONS_BTN3_MASK)) {         // Run continuously until BTN1 is pressed.
     uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
     transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
@@ -233,7 +232,6 @@ void transmitter_runTest() {
     }
     printf("completed one test period.\n");
   }
-  //transmitter_disableTestMode();
   do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
   printf("exiting transmitter_runTest()\n");
 }
