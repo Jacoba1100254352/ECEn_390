@@ -90,7 +90,7 @@ void hitLedTimer_tick() {
     case LED_ON_ST:
       // If the timer has expired, turn the LED off
       if (timer >= HIT_LED_TIMER_EXPIRE_VALUE) {
-          timer = 0;
+          timer_start = false;
           hitLedTimer_turnLedOff();
           currentState = LED_OFF_ST;
       }
@@ -98,7 +98,7 @@ void hitLedTimer_tick() {
 
     case LED_OFF_ST:
       // If the timer has expired, turn the LED on
-      if (timer_start && (timer >= HIT_LED_TIMER_EXPIRE_VALUE)) {
+      if (timer_start) {
         timer = 0;
         hitLedTimer_turnLedOn();
         currentState = LED_ON_ST;
@@ -117,7 +117,6 @@ void hitLedTimer_tick() {
       break;
 
     case LED_OFF_ST:
-      timer++; // Increment timer
       break;
 
      default:
