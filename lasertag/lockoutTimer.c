@@ -6,6 +6,7 @@
 
 #define START 0
 #define TIMER_NUM 1
+#define BOUNCE_DELAY 5
 
 volatile static bool timerRunning;
 volatile static uint32_t lockoutCounter;
@@ -74,6 +75,7 @@ bool lockoutTimer_runTest() {
   intervalTimer_stop(TIMER_NUM);
   printf("lockout duration: %f \n\r",
          intervalTimer_getTotalDurationInSeconds(TIMER_NUM));
+  do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
   // TODO: Prints out pass/fail status and other info to console.
   // TODO: Returns true if passes, false otherwise.
 }

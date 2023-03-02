@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 // Uncomment for debug prints
-// #define DEBUG
+ #define DEBUG
 
 #if defined(DEBUG)
 #include "xil_printf.h"
@@ -35,7 +35,7 @@ volatile static bool checkTriggerValue;
 volatile static bool isFirstPress;
 
 // States for the controller state machine.
-volatile enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST } currentState = RELEASED_ST;
+volatile static enum trigger_st_t { PRESSED_ST, RELEASED_ST, DEBOUNCE_ST } currentState = RELEASED_ST;
 
 // Trigger can be activated by either btn0 or the external gun that is attached
 // to TRIGGER_GUN_TRIGGER_MIO_PIN Gun input is ignored if the gun-input is high
@@ -85,13 +85,15 @@ static void debugStatePrint() {
 // Standard tick function.
 void trigger_tick() {
   static enum trigger_st_t previousState = RELEASED_ST;
-  debugStatePrint();
+  //debugStatePrint();
 
   // Perform state update first.
   switch (currentState) {
   case PRESSED_ST:
     if (!isTriggerPressed()) {
       previousState = PRESSED_ST;
+      DPCHAR('D');
+      DPCHAR('\n');
       checkTriggerValue = false;
       counter = 0;
       currentState = DEBOUNCE_ST;
@@ -100,6 +102,8 @@ void trigger_tick() {
   case RELEASED_ST:
     if (isTriggerPressed()) {
       previousState = RELEASED_ST;
+      DPCHAR('U');
+      DPCHAR('\n');
       checkTriggerValue = true;
       counter = 0;
       currentState = DEBOUNCE_ST;
@@ -165,6 +169,7 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // is pressed, and a 'U' when the trigger or BTN0 is released.
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
-  while (!(buttons_read() & BUTTONS_BTN3_MASK))
-    printf(isTriggerPressed() ? "D" : "U");
+  while (!(buttons_read() & BUTTONS_BTN3_MASK)) 
+    trigger_enable();
+  do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
 }

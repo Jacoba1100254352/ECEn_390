@@ -4,6 +4,7 @@
 #include "stdio.h"
 #include "mio.h"
 #include "leds.h"
+#include "utils.h"
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -24,23 +25,22 @@
 #define STATE_ACTION_ERR_MSG "Error in state action"
 #define LED_ON_ST_MSG "In LED_ON_ST"
 #define LED_OFF_ST_MSG "In LED_OFF_ST"
+#define BOUNCE_DELAY 5
 
 volatile static uint64_t timer;
 volatile static bool timer_enable;
 volatile static bool timer_start;
 
 // States for the controller state machine.
-volatile enum hitLedTimer_st_t {
+volatile static enum hitLedTimer_st_t {
 	LED_ON_ST,
     LED_OFF_ST
-};
-volatile static enum hitLedTimer_st_t currentState;
+} currentState = LED_OFF_ST;
 
 // Need to init things.
 void hitLedTimer_init() {
     mio_init(false);  // false disables any debug printing if there is a system failure during init.
     mio_setPinAsOutput(HIT_LED_TIMER_OUTPUT_PIN);  // Configure the signal direction of the pin to be an output.
-    currentState = LED_OFF_ST;
     leds_init(false);
     buttons_init();
     timer = 0;
@@ -68,7 +68,7 @@ static void debugStatePrint() {
 
 // Standard tick function.
 void hitLedTimer_tick() {
-  debugStatePrint();
+  //debugStatePrint();
   
       // Perform state update first.
   switch(currentState) {
@@ -140,8 +140,14 @@ void hitLedTimer_enable() {
 // The test continuously blinks the hit-led on and off.
 // Depends on the interrupt handler to call tick function.
 void hitLedTimer_runTest() {
+  printf("starting HitLED timer test\n");
   while(!(buttons_read() & BUTTONS_BTN3_MASK)) {
     mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_ON);
+    leds_write(LED_ON);
+    utils_msDelay(500);
     mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_OFF);
+    leds_write(LED_OFF);
+    utils_msDelay(500);
   }
+  do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
 }

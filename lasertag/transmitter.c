@@ -43,7 +43,7 @@
 #define High_st_MSG "In high_st\n"
 
 // States for the controller state machine.
-volatile enum transmitter_st_t {
+volatile static enum transmitter_st_t {
   wait_for_startFlag_st,   // wait here till the start flag is raised
   low_st,                  // outputs the low signal 0
   high_st                  // outputs the high signal 1
