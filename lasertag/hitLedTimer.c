@@ -19,6 +19,11 @@
 #define DPCHAR(ch)
 #endif
 
+
+/******************
+*   DEFINITIONS   *
+******************/
+
 #define LED_ON 1
 #define LED_OFF 0
 #define STATE_UPDATE_ERR_MSG "Error in state update"
@@ -26,6 +31,11 @@
 #define LED_ON_ST_MSG "In LED_ON_ST"
 #define LED_OFF_ST_MSG "In LED_OFF_ST"
 #define BOUNCE_DELAY 5
+
+
+/********************************
+*   GLOBAL VOLATILE VARIABLES   *
+********************************/
 
 volatile static uint64_t timer;
 volatile static bool timer_enable;
@@ -36,6 +46,11 @@ volatile static enum hitLedTimer_st_t {
 	LED_ON_ST,
     LED_OFF_ST
 } currentState = LED_OFF_ST;
+
+
+/****************
+*   FUNCTIONS   *
+****************/
 
 // Need to init things.
 void hitLedTimer_init() {
