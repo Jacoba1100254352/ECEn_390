@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "transmitter.h"
 #include <stdio.h>
+#include "utils.h"
 
 // Uncomment for debug prints
  #define DEBUG
@@ -27,6 +28,7 @@
 #define PRESSED_ST_MSG "In PRESSED_ST\n"
 #define RELEASED_ST_MSG "In RELEASED_ST\n"
 #define DEBOUNCE_ST_MSG "In DEBOUNCE_ST\n"
+#define BOUNCE_DELAY 5
 
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
@@ -90,6 +92,7 @@ void trigger_tick() {
   // Perform state update first.
   switch (currentState) {
   case PRESSED_ST:
+    // If the trigger is released, then we need to go to the debounce state
     if (!isTriggerPressed()) {
       previousState = PRESSED_ST;
       DPCHAR('D');
@@ -100,6 +103,7 @@ void trigger_tick() {
     }
     break;
   case RELEASED_ST:
+    // If the trigger is pressed, then we need to go to the debounce state
     if (isTriggerPressed()) {
       previousState = RELEASED_ST;
       DPCHAR('U');
@@ -110,11 +114,14 @@ void trigger_tick() {
     }
     break;
   case DEBOUNCE_ST:
+    // If the trigger value has changed, then we need to go back to the previous state
     if (checkTriggerValue != isTriggerPressed())
       currentState = previousState;
 
+    // Check if the counter has reached the debounce time
     if (counter == DEBOUNCED_VALUE_TIME) {
-      if (previousState == RELEASED_ST) {
+      // Transition based on previous state
+      if (previousState == RELEASED_ST) { 
         isFirstPress = true;
         currentState = PRESSED_ST;
       } else
@@ -129,7 +136,8 @@ void trigger_tick() {
   // Perform state action next.
   switch (currentState) {
   case PRESSED_ST:
-    if (isFirstPress) {
+    if (isFirstPress) { // Only decrement the number of shots remaining if this
+                        // is the first press of the trigger.
       trigger_shots_remaining--;
       isFirstPress = false;
       transmitter_run();
@@ -169,7 +177,9 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // is pressed, and a 'U' when the trigger or BTN0 is released.
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
-  while (!(buttons_read() & BUTTONS_BTN3_MASK)) 
+  while (!(buttons_read() & BUTTONS_BTN3_MASK)) // Check if BTN3 is pressed
     trigger_enable();
+
+  // Wait for button release
   do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
 }

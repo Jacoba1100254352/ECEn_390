@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "utils.h"
+#include "buttons.h"
 
 #define START 0
 #define TIMER_NUM 1

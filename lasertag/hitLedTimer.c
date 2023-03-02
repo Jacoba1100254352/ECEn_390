@@ -142,12 +142,9 @@ void hitLedTimer_enable() {
 void hitLedTimer_runTest() {
   printf("starting HitLED timer test\n");
   while(!(buttons_read() & BUTTONS_BTN3_MASK)) {
-    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_ON);
-    leds_write(LED_ON);
-    utils_msDelay(500);
-    mio_writePin(HIT_LED_TIMER_OUTPUT_PIN, LED_OFF);
-    leds_write(LED_OFF);
-    utils_msDelay(500);
+    hitLedTimer_start();
+    while(hitLedTimer_running())
+    utils_msDelay(300);
   }
   do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
 }
