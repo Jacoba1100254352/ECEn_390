@@ -18,6 +18,11 @@
 #define DPCHAR(ch)
 #endif
 
+
+/******************
+*   DEFINITIONS   *
+******************/
+
 #define TRANSMITTER_HIGH_VALUE 1
 #define TRANSMITTER_LOW_VALUE 0
 
@@ -31,18 +36,28 @@
 #define PLAYER_8 7
 #define PLAYER_9 8
 #define PLAYER_10 9
+
 #define TRANSMITTER_OUTPUT_PIN 13
 #define TRANSMITTER_HIGH_VALUE 1
 #define TRANSMITTER_LOW_VALUE 0
 #define FIFTY_PERCENT_DUTY_CYCLE 1 / 2
 #define RESET 0
-#define TRANSMITTER_WAIT_IN_MS 300
+
 #define TRANSMITTER_TEST_TICK_PERIOD_IN_MS 10
 #define BOUNCE_DELAY 5
+
+#define TRANSMITTER_WAIT_IN_MS 300
+#define EXTENDED_PULSE_LENGTH 20000
+#define SHORT_PULSE_LENGTH 200
 
 #define Wait_for_startFlag_st_MSG "In wait_for_startFlag_st\n"
 #define Low_st_MSG "In low_st\n"
 #define High_st_MSG "In high_st\n"
+
+
+/********************************
+*   GLOBAL VOLATILE VARIABLES   *
+********************************/
 
 // States for the controller state machine.
 volatile static enum transmitter_st_t {
@@ -59,6 +74,11 @@ volatile static uint32_t pulse_cnt;
 volatile static uint32_t freq_cnt;
 volatile static uint64_t counter;
 volatile static uint32_t pulse_length;
+
+
+/****************
+*   FUNCTIONS   *
+****************/
 
 // The transmitter state machine generates a square wave output at the chosen
 // frequency as set by transmitter_setFrequencyNumber(). The step counts for the
@@ -108,7 +128,7 @@ static void debugStatePrint() {
 void transmitter_tick() {
   //debugStatePrint();
 
-    // Perform state update next
+  // Perform state update
   switch (current_State) {
     case wait_for_startFlag_st:
       if (startFlag)
@@ -117,9 +137,8 @@ void transmitter_tick() {
         mio_writePin(TRANSMITTER_OUTPUT_PIN, TRANSMITTER_LOW_VALUE);
         current_State = wait_for_startFlag_st;
       }
-      if (runContinuous) {
+      if (runContinuous)
         startFlag = true;
-      }
 
       break;
       
@@ -162,7 +181,7 @@ void transmitter_tick() {
   }
 
 
-  // Perform state action first
+  // Perform state actions
   switch (current_State) {
     case wait_for_startFlag_st:
       break;
@@ -190,7 +209,6 @@ bool transmitter_running() { return startFlag; }
 // transmitter stops and transmitter_run() is called again.
 void transmitter_setFrequencyNumber(uint16_t frequencyNumber) {
   frequency_number = filter_frequencyTickTable[frequencyNumber];
-  
 }
 
 // Returns the current frequency setting.
@@ -216,7 +234,7 @@ void transmitter_setContinuousMode(bool continuousModeFlag) {
 // Does not use interrupts, but calls the tick function in a loop.
 // Prints out one line of 1s and 0s that represent one period of the clock signal, in terms of ticks.
 void transmitter_runTest() {
-  pulse_length = 200;
+  pulse_length = SHORT_PULSE_LENGTH;
   printf("starting transmitter_runTest()\n");
   mio_init(false);
   buttons_init();                                         // Using buttons
@@ -245,19 +263,22 @@ void transmitter_runTest() {
 // Should change frequency in response to the slide switches.
 // Depends on the interrupt handler to call tick function.
 void transmitter_runTestNoncontinuous() {
-  pulse_length = 20000;
+  pulse_length = EXTENDED_PULSE_LENGTH;
   printf("starting transmitter_runTestNoncontinuous()\n");
   mio_init(false);
   buttons_init();                                         // Using buttons
   switches_init();                                        // and switches.
   transmitter_init();  
   transmitter_setContinuousMode(false);
+
+  // Run continuously until BTN3 is pressed.
   while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
     uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
     transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
     transmitter_run();
     utils_msDelay(TRANSMITTER_WAIT_IN_MS);
   }
+    // Wait for buttons to be released.
     do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
     printf("exiting transmitter_runTestNoncontinuous()\n");
 }
@@ -272,7 +293,7 @@ void transmitter_runTestNoncontinuous() {
 // Test runs until BTN3 is pressed.
 // Depends on the interrupt handler to call tick function.
 void transmitter_runTestContinuous() {
-  pulse_length = 20000;
+  pulse_length = EXTENDED_PULSE_LENGTH;
   printf("starting transmitter_runTestContinuous()\n");
   mio_init(false);
   buttons_init();                                         // Using buttons
@@ -280,10 +301,13 @@ void transmitter_runTestContinuous() {
   transmitter_init();  
   transmitter_setContinuousMode(true);
   transmitter_run();
+
+  // Run continuously until BTN3 is pressed.
   while (!(buttons_read() & BUTTONS_BTN3_MASK)) {
     uint16_t switchValue = switches_read() % FILTER_FREQUENCY_COUNT;  // Compute a safe number from the switches.
     transmitter_setFrequencyNumber(switchValue);          // set the frequency number based upon switch value.
   }
+    // Wait for buttons to be released.
     do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
     printf("exiting transmitter_runTestContinuous()\n");
 }
