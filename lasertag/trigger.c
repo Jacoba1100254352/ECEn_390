@@ -22,11 +22,11 @@
 #define GUN_TRIGGER_PRESSED 1
 #define GUN_TRIGGER_RELEASED 0
 #define DEBOUNCED_VALUE_TIME 5000 // 50 ms
-#define STATE_UPDATE_ERR_MSG "Error in state update"
-#define STATE_ACTION_ERR_MSG "Error in state action"
-#define PRESSED_ST_MSG "In PRESSED_ST"
-#define RELEASED_ST_MSG "In RELEASED_ST"
-#define DEBOUNCE_ST_MSG "In DEBOUNCE_ST"
+#define STATE_UPDATE_ERR_MSG "Error in state update\n"
+#define STATE_ACTION_ERR_MSG "Error in state action\n"
+#define PRESSED_ST_MSG "In PRESSED_ST\n"
+#define RELEASED_ST_MSG "In RELEASED_ST\n"
+#define DEBOUNCE_ST_MSG "In DEBOUNCE_ST\n"
 
 volatile static trigger_shotsRemaining_t trigger_shots_remaining;
 volatile static bool ignoreGunInput;
