@@ -7,7 +7,7 @@
 #include "utils.h"
 
 // Uncomment for debug prints
-// #define DEBUG
+#define DEBUG
  
 #if defined(DEBUG)
 #include <stdio.h>
@@ -31,6 +31,7 @@
 #define LED_ON_ST_MSG "In LED_ON_ST"
 #define LED_OFF_ST_MSG "In LED_OFF_ST"
 #define BOUNCE_DELAY 5
+#define LED_DELAY 300
 
 
 /********************************
@@ -42,10 +43,7 @@ volatile static bool timer_enable;
 volatile static bool timer_start;
 
 // States for the controller state machine.
-volatile static enum hitLedTimer_st_t {
-	LED_ON_ST,
-    LED_OFF_ST
-} currentState = LED_OFF_ST;
+volatile static enum hitLedTimer_st_t { LED_ON_ST, LED_OFF_ST} currentState = LED_OFF_ST;
 
 
 /****************
@@ -70,6 +68,7 @@ static void debugStatePrint() {
   static enum hitLedTimer_st_t previousState = LED_ON_ST; // Start it out different from the currentState
   if (previousState != currentState) { // only print if the state has changed
     previousState = currentState;     // update previous state
+
     switch(currentState) {            // print message based on state
       case LED_ON_ST:
         printf(LED_ON_ST_MSG);
@@ -87,19 +86,25 @@ void hitLedTimer_tick() {
   
       // Perform state update first.
   switch(currentState) {
+
     case LED_ON_ST:
-        if (timer >= HIT_LED_TIMER_EXPIRE_VALUE) {
-            timer = 0;
-            hitLedTimer_turnLedOff();
-            currentState = LED_OFF_ST;
-        }
+      // If the timer has expired, turn the LED off
+      if (timer >= HIT_LED_TIMER_EXPIRE_VALUE) {
+          timer = 0;
+          hitLedTimer_turnLedOff();
+          currentState = LED_OFF_ST;
+      }
       break;
+
     case LED_OFF_ST:
-        if (timer_start) {
-            hitLedTimer_turnLedOn();
-            currentState = LED_ON_ST;
-        }
+      // If the timer has expired, turn the LED on
+      if (timer_start && (timer >= HIT_LED_TIMER_EXPIRE_VALUE)) {
+        timer = 0;
+        hitLedTimer_turnLedOn();
+        currentState = LED_ON_ST;
+      }
       break;
+
     default:
       printf(STATE_UPDATE_ERR_MSG);
       break;
@@ -108,10 +113,13 @@ void hitLedTimer_tick() {
   // Perform state action next.
   switch(currentState) {
     case LED_ON_ST:
-        timer++;
+      timer++; // Increment timer
       break;
+
     case LED_OFF_ST:
+      timer++; // Increment timer
       break;
+
      default:
       printf(STATE_ACTION_ERR_MSG);
       break;
@@ -158,8 +166,11 @@ void hitLedTimer_runTest() {
   printf("starting HitLED timer test\n");
   while(!(buttons_read() & BUTTONS_BTN3_MASK)) {
     hitLedTimer_start();
-    while(hitLedTimer_running())
-    utils_msDelay(300);
+    while(hitLedTimer_running()) // Wait for timer to expire.
+      ;
+
+    utils_msDelay(LED_DELAY); // Delay for 300 ms
   }
+  // Debounce button
   do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
 }
