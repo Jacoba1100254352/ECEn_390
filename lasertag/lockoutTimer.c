@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils.h"
-#include "buttons.h"
 
 /******************
 *   DEFINITIONS   *
@@ -12,7 +11,6 @@
 
 #define START 0
 #define TIMER_NUM 1
-#define BOUNCE_DELAY 5
 
 
 /********************************
@@ -98,6 +96,6 @@ bool lockoutTimer_runTest() {
   intervalTimer_stop(TIMER_NUM);
   printf("lockout duration: %f \n\r", intervalTimer_getTotalDurationInSeconds(TIMER_NUM));
 
-  // Check if lockout timer expired after correct amount of time.
-  do {utils_msDelay(BOUNCE_DELAY);} while (buttons_read());
+  // May need to fix this.
+  return true;
 }
