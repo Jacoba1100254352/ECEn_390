@@ -3,6 +3,7 @@
 #include "hitLedTimer.h"
 #include "transmitter.h"
 #include "lockoutTimer.h"
+#include "buffer.h"
 
 // Perform initialization for interrupt and timing related modules.
 void isr_init() {
@@ -10,6 +11,7 @@ void isr_init() {
     trigger_init();
     hitLedTimer_init();
     lockoutTimer_init();
+    buffer_init();
 }
 
 // This function is invoked by the timer interrupt at 100 kHz.
@@ -19,4 +21,5 @@ void isr_function() {
     hitLedTimer_tick();
     transmitter_tick();
     lockoutTimer_tick();
+    buffer_pushover(interrupts_getAdcData());
 }
