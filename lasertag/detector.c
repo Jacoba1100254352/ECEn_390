@@ -58,7 +58,7 @@ void detector_init(void) {
 void detector_setIgnoredFrequencies(bool freqArray[]) {
     for (int i = 0; i < DETECTOR_MAX_HITS; i++)
         if (freqArray[i])
-            hits[i] = 0;hits[i] = freqArray[i];
+            hits[i] = 0;
     
 }
 
