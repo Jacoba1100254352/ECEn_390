@@ -14,7 +14,6 @@
 #define DPRINTF(...)
 #endif
 
-#define DETECTOR_MAX_HITS 10
 #define FILTER_NUMBER 10
 #define DECIMATION_VAL 10
 
@@ -28,7 +27,7 @@ volatile static bool freqArray[FILTER_NUMBER];
 // Assumes the filter module is initialized previously.
 void detector_init(void) {
     filter_init();
-    for (int i = 0; i < DETECTOR_MAX_HITS; i++)
+    for (int i = 0; i < FILTER_NUMBER; i++)
         hitArray[i] = 0;
     hitDetectedFlag = false;
 }
@@ -37,7 +36,7 @@ void detector_init(void) {
 // the frequency will be ignored. Multiple frequencies can be ignored.
 // Your shot frequency (based on the switches) is a good choice to ignore.
 void detector_setIgnoredFrequencies(bool freqArray[]) {
-    for (int i = 0; i < DETECTOR_MAX_HITS; i++)
+    for (int i = 0; i < FILTER_NUMBER; i++)
         if (freqArray[i])
             hitArray[i] = 0;
     
@@ -91,24 +90,32 @@ void detector(bool interruptsCurrentlyEnabled) {
 
 // Returns true if a hit was detected.
 bool detector_hitDetected(void) {
-
+    return hitDetectedFlag;
 }
 
 // Returns the frequency number that caused the hit.
 uint16_t detector_getFrequencyNumberOfLastHit(void) {
-
+    uint16_t freqHit = 0;
+    for (uint8_t i = 0; i < FILTER_NUMBER; i++) {
+        if (hitArray[i] > 0) {
+            freqHit = i;
+            break;
+        }
+    }
+    return freqHit;
 }
 
 // Clear the detected hit once you have accounted for it.
 void detector_clearHit(void) {
-
+    hitArray[detector_getFrequencyNumberOfLastHit()] = 0;
 }
 
 // Ignore all hits. Used to provide some limited invincibility in some game
 // modes. The detector will ignore all hits if the flag is true, otherwise will
 // respond to hits normally.
 void detector_ignoreAllHits(bool flagValue) {
-
+    for (int i = 0; i < FILTER_NUMBER; i++)
+        hitArray[i] = 0;
 }
 
 // Get the current hit counts.
