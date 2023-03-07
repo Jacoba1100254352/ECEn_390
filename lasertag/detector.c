@@ -1,4 +1,5 @@
 #include "detector.h"
+#include "filter.h"
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -11,18 +12,24 @@
 #define DPRINTF(...)
 #endif
 
+#define DETECTOR_MAX_HITS 10
+
+volatile static uint32_t hits[DETECTOR_MAX_HITS];
+
 // Initialize the detector module.
 // By default, all frequencies are considered for hits.
 // Assumes the filter module is initialized previously.
 void detector_init(void) {
-
+    filter_init();
+    for (uint16_t i = 0; i < DETECTOR_MAX_HITS; i++)
+        hits[i] = 0;
 }
 
 // freqArray is indexed by frequency number. If an element is set to true,
 // the frequency will be ignored. Multiple frequencies can be ignored.
 // Your shot frequency (based on the switches) is a good choice to ignore.
 void detector_setIgnoredFrequencies(bool freqArray[]) {
-
+    
 }
 
 // Runs the entire detector: decimating FIR-filter, IIR-filters,
