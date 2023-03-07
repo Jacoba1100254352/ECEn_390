@@ -1,7 +1,7 @@
 #include "detector.h"
 #include "filter.h"
-#include "buffer.h"
-#include "interrupts.h"
+//#include "buffer.h"
+//#include "interrupts.h"
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -36,6 +36,9 @@ void detector_setIgnoredFrequencies(bool freqArray[]) {
             hits[i] = 0;
     
 }
+#define DECIMATION_VAL 10
+detector_hitCount_t hitArray[10];
+bool hitDetectedFlag;
 
 // Runs the entire detector: decimating FIR-filter, IIR-filters,
 // power-computation, hit-detection. If interruptsCurrentlyEnabled = true,
@@ -50,16 +53,33 @@ void detector_setIgnoredFrequencies(bool freqArray[]) {
 void detector(bool interruptsCurrentlyEnabled) {
     uint64_t elementCount = buffer_elements();
     for (uint64_t i = 0; i < elementCount; i++) {
+        uint8_t decimationFactor = 0;
         if (interruptsCurrentlyEnabled) {
             interrupts_disableArmInts();
         }
         uint16_t rawAdcValue = buffer_pop();
+        if (interruptsCurrentlyEnabled) {
+            interrupts_enableArmInts();
+        }
         double scaledAdcValue = ((double)rawAdcValue - 2047.5)/2047.5;
         DPRINTF("ADC value: %d, scaled ADC value: %f", rawAdcValue, scaledAdcValue);
         filter_addNewInput(scaledAdcValue);
-
-        if (interruptsCurrentlyEnabled) {
-            interrupts_enableArmInts();
+        decimationFactor++;
+        if (DECIMATION_VAL == decimationFactor) {
+            filter_firFilter();
+            for (uint8_t filterNumber = 0; filterNumber < FILTER_COUNT; filterNumber++) {
+                filter_iirFilter(filterNumber);
+                filter_computePower(filterNumber, true, false); //Check if we want to compute from scratch each time
+            }
+        }
+        if (lockoutTimer_running()) {
+            uint16_t freqHit = detector_getFrequencyNumberOfLastHit();
+            if (detector_hitDetected() && !freqArray[freqHit]) {
+                lockoutTimer_start();
+                hitLedTimer_start();
+                hitArray[freqHit]++;
+                hitDetectedFlag = true;
+            }
         }
     }
 
