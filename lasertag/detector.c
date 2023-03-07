@@ -27,7 +27,7 @@ volatile static bool fudgeFactorIndex;
 // Assumes the filter module is initialized previously.
 void detector_init(void) {
     filter_init();
-    for (int i = 0; i < FILTER_NUMBER; i++)
+    for (uint8_t i = 0; i < FILTER_NUMBER; i++)
         hitArray[i] = 0;
     hitDetectedFlag = false;
     fudgeFactorIndex = 0;
@@ -37,7 +37,7 @@ void detector_init(void) {
 // the frequency will be ignored. Multiple frequencies can be ignored.
 // Your shot frequency (based on the switches) is a good choice to ignore.
 void detector_setIgnoredFrequencies(bool freqArray[]) {
-    for (int i = 0; i < FILTER_NUMBER; i++)
+    for (uint8_t i = 0; i < FILTER_NUMBER; i++)
         if (freqArray[i])
             hitArray[i] = 0;
     
@@ -145,5 +145,5 @@ uint32_t detector_getInvocationCount(void) {
 // on each set. With the same fudge factor, your hit detect algorithm
 // should detect a hit on the first set and not detect a hit on the second.
 void detector_runTest(void) {
-
+    
 }
