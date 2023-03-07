@@ -1,7 +1,7 @@
 #include "detector.h"
 #include "filter.h"
-//#include "buffer.h"
-//#include "interrupts.h"
+#include "buffer.h"
+#include "interrupts.h"
 
 // Uncomment for debug prints
 // #define DEBUG
@@ -15,8 +15,13 @@
 #endif
 
 #define DETECTOR_MAX_HITS 10
+#define FILTER_NUMBER 10
+#define DECIMATION_VAL 10
 
-volatile static uint32_t hits[DETECTOR_MAX_HITS];
+volatile static detector_hitCount_t hitArray[FILTER_NUMBER];
+volatile static bool hitDetectedFlag;
+volatile static bool freqArray[FILTER_NUMBER];
+
 
 // Initialize the detector module.
 // By default, all frequencies are considered for hits.
@@ -24,7 +29,8 @@ volatile static uint32_t hits[DETECTOR_MAX_HITS];
 void detector_init(void) {
     filter_init();
     for (int i = 0; i < DETECTOR_MAX_HITS; i++)
-        hits[i] = 0;
+        hitArray[i] = 0;
+    hitDetectedFlag = false;
 }
 
 // freqArray is indexed by frequency number. If an element is set to true,
@@ -33,12 +39,9 @@ void detector_init(void) {
 void detector_setIgnoredFrequencies(bool freqArray[]) {
     for (int i = 0; i < DETECTOR_MAX_HITS; i++)
         if (freqArray[i])
-            hits[i] = 0;
+            hitArray[i] = 0;
     
 }
-#define DECIMATION_VAL 10
-detector_hitCount_t hitArray[10];
-bool hitDetectedFlag;
 
 // Runs the entire detector: decimating FIR-filter, IIR-filters,
 // power-computation, hit-detection. If interruptsCurrentlyEnabled = true,
@@ -67,7 +70,7 @@ void detector(bool interruptsCurrentlyEnabled) {
         decimationFactor++;
         if (DECIMATION_VAL == decimationFactor) {
             filter_firFilter();
-            for (uint8_t filterNumber = 0; filterNumber < FILTER_COUNT; filterNumber++) {
+            for (uint8_t filterNumber = 0; filterNumber < FILTER_NUMBER; filterNumber++) {
                 filter_iirFilter(filterNumber);
                 filter_computePower(filterNumber, true, false); //Check if we want to compute from scratch each time
             }
