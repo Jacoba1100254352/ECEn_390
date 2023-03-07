@@ -108,14 +108,17 @@ uint16_t detector_getFrequencyNumberOfLastHit(void) {
 // Clear the detected hit once you have accounted for it.
 void detector_clearHit(void) {
     hitArray[detector_getFrequencyNumberOfLastHit()] = 0;
+    hitDetectedFlag = false;
 }
 
 // Ignore all hits. Used to provide some limited invincibility in some game
 // modes. The detector will ignore all hits if the flag is true, otherwise will
 // respond to hits normally.
 void detector_ignoreAllHits(bool flagValue) {
-    for (int i = 0; i < FILTER_NUMBER; i++)
-        hitArray[i] = 0;
+    if (flagValue) {
+        for (int i = 0; i < FILTER_NUMBER; i++)
+            hitArray[i] = 0;
+    }
 }
 
 // Get the current hit counts.
