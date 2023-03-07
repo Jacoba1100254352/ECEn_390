@@ -1,4 +1,5 @@
 #include "buffer.h"
+#include <stdint.h>
  
 // This implements a dedicated circular buffer for storing values
 // from the ADC until they are read and processed by the detector.
