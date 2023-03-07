@@ -1,14 +1,29 @@
-typedef uint16_t detector_hitCount_t;
+#include "detector.h"
+
+// Uncomment for debug prints
+// #define DEBUG
+ 
+#if defined(DEBUG)
+#include <stdio.h>
+#include "xil_printf.h" // outbyte
+#define DPRINTF(...) printf(__VA_ARGS__)
+#else
+#define DPRINTF(...)
+#endif
 
 // Initialize the detector module.
 // By default, all frequencies are considered for hits.
 // Assumes the filter module is initialized previously.
-void detector_init(void);
+void detector_init(void) {
+
+}
 
 // freqArray is indexed by frequency number. If an element is set to true,
 // the frequency will be ignored. Multiple frequencies can be ignored.
 // Your shot frequency (based on the switches) is a good choice to ignore.
-void detector_setIgnoredFrequencies(bool freqArray[]);
+void detector_setIgnoredFrequencies(bool freqArray[]) {
+
+}
 
 // Runs the entire detector: decimating FIR-filter, IIR-filters,
 // power-computation, hit-detection. If interruptsCurrentlyEnabled = true,
@@ -20,35 +35,66 @@ void detector_setIgnoredFrequencies(bool freqArray[]);
 // 3. re-enable interrupts.
 // Ignore hits on frequencies specified with detector_setIgnoredFrequencies().
 // Assumption: draining the ADC buffer occurs faster than it can fill.
-void detector(bool interruptsCurrentlyEnabled);
+void detector(bool interruptsCurrentlyEnabled) {
+    uint64_t elementCount = buffer_elements();
+    for (uint64_t i = 0; i < elementCount; i++) {
+        if (interruptsCurrentlyEnabled) {
+            interrupts_disableArmInts();
+        }
+        uint16_t rawAdcValue = buffer_pop();
+        double scaledAdcValue = ((double)rawAdcValue - 2047.5)/2047.5;
+        DPRINTF("ADC value: %d, scaled ADC value: %f", rawAdcValue, scaledAdcValue);
+        filter_addNewInput(scaledAdcValue);
+
+        if (interruptsCurrentlyEnabled) {
+            interrupts_enableArmInts();
+        }
+    }
+
+
+}
 
 // Returns true if a hit was detected.
-bool detector_hitDetected(void);
+bool detector_hitDetected(void) {
+
+}
 
 // Returns the frequency number that caused the hit.
-uint16_t detector_getFrequencyNumberOfLastHit(void);
+uint16_t detector_getFrequencyNumberOfLastHit(void) {
+
+}
 
 // Clear the detected hit once you have accounted for it.
-void detector_clearHit(void);
+void detector_clearHit(void) {
+
+}
 
 // Ignore all hits. Used to provide some limited invincibility in some game
 // modes. The detector will ignore all hits if the flag is true, otherwise will
 // respond to hits normally.
-void detector_ignoreAllHits(bool flagValue);
+void detector_ignoreAllHits(bool flagValue) {
+
+}
 
 // Get the current hit counts.
 // Copy the current hit counts into the user-provided hitArray
 // using a for-loop.
-void detector_getHitCounts(detector_hitCount_t hitArray[]);
+void detector_getHitCounts(detector_hitCount_t hitArray[]) {
+
+}
 
 // Allows the fudge-factor index to be set externally from the detector.
 // The actual values for fudge-factors is stored in an array found in detector.c
-void detector_setFudgeFactorIndex(uint32_t factor);
+void detector_setFudgeFactorIndex(uint32_t factor) {
+
+}
 
 // Returns the detector invocation count.
 // The count is incremented each time detector is called.
 // Used for run-time statistics.
-uint32_t detector_getInvocationCount(void);
+uint32_t detector_getInvocationCount(void) {
+
+}
 
 /******************************************************
 ******************** Test Routines ********************
@@ -58,4 +104,6 @@ uint32_t detector_getInvocationCount(void);
 // Create two sets of power values and call your hit detection algorithm
 // on each set. With the same fudge factor, your hit detect algorithm
 // should detect a hit on the first set and not detect a hit on the second.
-void detector_runTest(void);
+void detector_runTest(void) {
+
+}
