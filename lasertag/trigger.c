@@ -193,6 +193,7 @@ void trigger_setRemainingShotCount(trigger_shotsRemaining_t count) {
 // is pressed, and a 'U' when the trigger or BTN0 is released.
 // Depends on the interrupt handler to call tick function.
 void trigger_runTest() {
+  printf("Trigger test\n");
   // Initialize trigger when button 3 is pressed
   while (!(buttons_read() & BUTTONS_BTN3_MASK))
     trigger_enable();
