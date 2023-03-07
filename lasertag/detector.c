@@ -1,5 +1,7 @@
 #include "detector.h"
 #include "filter.h"
+#include "buffer.h"
+#include "interrupts.h"
 
 // Uncomment for debug prints
 // #define DEBUG
